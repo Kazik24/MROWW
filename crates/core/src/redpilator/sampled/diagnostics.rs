@@ -1,6 +1,168 @@
 //! Optional memory and routing diagnostics, kept out of execution and publication.
 use super::{Runtime, llvm, movement, program};
 
+impl super::Program {
+    pub(crate) fn log_movement_invariant_census(&self) {
+        use std::collections::BTreeMap;
+        let mut axes = BTreeMap::<usize, usize>::new();
+        let mut small_groups = 0;
+        let mut physical_rows = 0;
+        let mut collision_rows = 0;
+        let mut collision_groups = 0;
+        let mut unknown_groups = 0;
+        let mut remaining_rows = MAX_CENSUS_TOTAL_ROWS;
+        for group in &self.movement_groups {
+            *axes.entry(group.axes.len()).or_default() += 1;
+            if group.axes.len() < 2 {
+                continue;
+            }
+            let tokens: Vec<_> = group.axes.iter().map(|axis| &self.tokens[axis.token]).collect();
+            if let Some((rows, collisions)) = physical_collision_rows(&tokens, remaining_rows) {
+                remaining_rows -= rows;
+                small_groups += 1;
+                physical_rows += rows;
+                collision_rows += collisions;
+                collision_groups += usize::from(collisions != 0);
+            } else {
+                unknown_groups += 1;
+            }
+        }
+        let constant_links = self
+            .arrangement_links
+            .iter()
+            .filter(|link| link.active.first().is_some_and(|first| link.active.iter().all(|value| value == first)))
+            .count();
+        eprintln!(
+            "MOVEMENT_INVARIANT_CENSUS {}",
+            serde_json::json!({
+                "groups": self.movement_groups.len(), "axes_histogram": axes,
+                "small_multiaxis_groups": small_groups, "physical_rows": physical_rows,
+                "collision_rows": collision_rows, "collision_groups": collision_groups,
+                "unknown_groups": unknown_groups, "constant_links": constant_links,
+                "arrangement_links": self.arrangement_links.len(),
+                "max_axes": MAX_CENSUS_AXES, "max_physical_rows": MAX_CENSUS_ROWS,
+                "physical_row_budget": MAX_CENSUS_TOTAL_ROWS,
+            })
+        );
+    }
+
+    fn wire_deferral_census(&self) -> (usize, usize, usize) {
+        use mchprs_blocks::blocks::Block;
+        let wires: Vec<_> = self
+            .initial
+            .iter()
+            .enumerate()
+            .filter_map(|(node, block)| matches!(block, Block::RedstoneWire { .. }).then_some(node))
+            .collect();
+        let whole = self.relaxed_mode
+            && !wires.is_empty()
+            && wires
+                .iter()
+                .all(|&wire| self.outgoing[wire].is_empty() && self.outgoing_arrangements[wire].is_empty() && self.side_outputs[wire].is_empty());
+        let additional = if !self.relaxed_mode || whole {
+            0
+        } else {
+            wires
+                .iter()
+                .filter(|&&wire| {
+                    self.outgoing[wire].is_empty()
+                        && self.outgoing_arrangements[wire].is_empty()
+                        && self.side_outputs[wire].is_empty()
+                        && self.watched_by_component[wire].is_none()
+                        && !self.reactive[wire]
+                        && self.reactive_by_source[wire].is_empty()
+                        && self.reactive_neighbours[wire].is_empty()
+                        && self.source_watchers[wire].is_empty()
+                        && self.comparators_by_override[wire].is_empty()
+                        && self.output_programs[wire].iter().all(|range| range.is_empty())
+                })
+                .count()
+        };
+        (wires.len(), if whole { wires.len() } else { 0 }, additional)
+    }
+
+    pub(crate) fn log_wire_deferral_census(&self) {
+        let (wires, already_native, additional) = self.wire_deferral_census();
+        eprintln!("WIRE_DEFERRAL_CENSUS wires={wires} already_native={already_native} additional={additional}");
+    }
+}
+
+const MAX_CENSUS_AXES: usize = 4;
+const MAX_CENSUS_ROWS: usize = 64;
+const MAX_CENSUS_TOTAL_ROWS: usize = 1_000_000;
+
+/// Physical collisions are candidate constraints only; this does not prove reachability.
+fn physical_collision_rows(tokens: &[&super::pistons::PistonToken], remaining: usize) -> Option<(usize, usize)> {
+    if tokens.len() > MAX_CENSUS_AXES {
+        return None;
+    }
+    let rows = tokens.iter().try_fold(1usize, |rows, token| {
+        rows.checked_mul(token.cells.len() + 1)
+            .filter(|&rows| rows <= MAX_CENSUS_ROWS.min(remaining))
+    })?;
+    let collisions = (0..rows)
+        .filter(|&row| {
+            let mut digits = row;
+            let mut occupied = [None; MAX_CENSUS_AXES];
+            for (axis, token) in tokens.iter().enumerate() {
+                let digit = digits % (token.cells.len() + 1);
+                digits /= token.cells.len() + 1;
+                let cell = digit.checked_sub(1).map(|index| token.cells[index]);
+                if cell.is_some() && occupied[..axis].contains(&cell) {
+                    return true;
+                }
+                occupied[axis] = cell;
+            }
+            false
+        })
+        .count();
+    Some((rows, collisions))
+}
+
+#[cfg(test)]
+mod wire_census_tests {
+    use super::MAX_CENSUS_ROWS;
+    use mchprs_blocks::{BlockPos, blocks::Block};
+    #[test]
+    fn physical_collision_census_includes_absent_states_and_obeys_bounds() {
+        let token = super::super::pistons::PistonToken {
+            block: Block::Stone {},
+            position: None,
+            cells: vec![BlockPos::new(1, 2, 3)],
+        };
+        assert_eq!(super::physical_collision_rows(&[&token, &token], MAX_CENSUS_ROWS), Some((4, 1)));
+        assert_eq!(super::physical_collision_rows(&[&token, &token], 3), None);
+        let mut separate = token.clone();
+        separate.cells[0].x += 1;
+        assert_eq!(super::physical_collision_rows(&[&token, &separate], MAX_CENSUS_ROWS), Some((4, 0)));
+        assert_eq!(super::physical_collision_rows(&[&token; 5], MAX_CENSUS_ROWS), None);
+        separate.cells = vec![BlockPos::new(0, 0, 0); 64];
+        assert_eq!(super::physical_collision_rows(&[&separate], MAX_CENSUS_ROWS), None);
+    }
+    #[test]
+    fn distinguishes_circuit_wide_coverage_from_additional_wires() {
+        let mut program = super::super::Program::new(
+            vec![BlockPos::new(0, 0, 0), BlockPos::new(1, 0, 0)],
+            vec![Block::from_name("redstone_wire").unwrap(); 2],
+            vec![],
+            vec![[vec![], vec![]]; 2],
+            vec![],
+            vec![],
+            vec![],
+        )
+        .unwrap();
+        program.compile_movement_flips().unwrap();
+        program.prepare_projection();
+        assert_eq!(program.wire_deferral_census(), (2, 0, 0));
+        program.relaxed_mode = true;
+        assert_eq!(program.wire_deferral_census(), (2, 2, 0));
+        program.outgoing[0].push(0);
+        assert_eq!(program.wire_deferral_census(), (2, 0, 1));
+        program.reactive[1] = true;
+        assert_eq!(program.wire_deferral_census(), (2, 0, 0));
+    }
+}
+
 impl Runtime {
     /// Report retained program, runtime and native-encoding storage.
     ///

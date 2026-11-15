@@ -195,6 +195,11 @@ fn compile_program(
         monitor.set_phase("folding equivalent movement states");
         program.fold_movement_states().map_err(CompileError::Unsupported)?;
     }
+    if std::env::var_os("MCHPRS_REDPILATOR_PHASE_TIMINGS").is_some() {
+        program.log_digital_batch_census();
+        program.log_wire_deferral_census();
+        program.log_movement_invariant_census();
+    }
     Ok(Arc::new(program))
 }
 

@@ -1,0 +1,162 @@
+{
+  "commands": [
+    "Dot-source redpilator-next-env.ps1 with a unique cache suffix per process",
+    "cargo test -p mchprs_core --lib redpilator --locked",
+    "cargo test -p mchprs_core --lib redpilator --locked -- --test-threads=1",
+    "cargo check -p mchprs_core --all-targets --all-features --locked"
+  ],
+  "initial_patch_sha256": "5e045d46e4526b70b87c37f5d060d845b7178f1dad6ff36a294b0f4530c14602",
+  "dll_override": null,
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\r\nbinary: rustc\r\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\r\ncommit-date: 2026-09-01\r\nhost: x86_64-pc-windows-msvc\r\nrelease: 1.98.1\r\nLLVM version: 22.1.8\r\n",
+  "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+  "machine": {
+    "Name": "AMD Ryzen 9 5950X 16-Core Processor            ",
+    "NumberOfCores": 16,
+    "NumberOfLogicalProcessors": 32
+  },
+  "revision": "4ef372fe2da16107cb08573944520c32e943c0f3",
+  "clang": {
+    "version": "clang version 22.0.0git (https://github-com-cache.bf.unity3d.com/Unity-Technologies/llvm-project e5071069e879dbf97a239cda009f8a3e3a4a7365)\r\nTarget: x86_64-pc-windows-msvc\r\nThread model: posix\r\nInstalledDir: C:\\Program Files\\Unity\\Hub\\Editor\\6000.6.0f1\\Editor\\Data\\PlaybackEngines\\WebGLSupport\\BuildTools\\Emscripten\\llvm\r\n",
+    "path": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+    "sha256": "ddcb47eb6f9629b44d233030ebe0dccfa56e8df769340c3e17363e6e4222194e"
+  },
+  "linker": {
+    "version": "LLD 22.1.8 (https://github.com/rust-lang/llvm-project.git 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)\r\n",
+    "path": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+    "sha256": "e06f802da0559979bf9fcf5a37dfd6a70c27efafd606cda355eb6d04d11188ab"
+  },
+  "validation": {
+    "serial_suite": {
+      "ignored": 30,
+      "failed": 0,
+      "passed": 333,
+      "seconds": 456.92
+    },
+    "isolated_llvm": "passes with explicit tools",
+    "all_targets_all_features": "passed",
+    "parallel_suite": {
+      "ignored": 30,
+      "failed": 3,
+      "passed": 330,
+      "seconds": 190.24
+    },
+    "no_overrides": "LLVM preparation fails",
+    "isolated_plot": "passes with explicit tools"
+  },
+  "timing": {
+    "command": "Dot-source env with timing cache; set MCHPRS_ENGINE_KERNEL_ANALYSIS=1; set PowerShell ProcessorAffinity=256; bench_engine_compare.exe zcore baseline-zcore-native.json 5000 --samples=5",
+    "samples": [
+      {
+        "backend": "llvm",
+        "compile_ms": 18526.125,
+        "cpu": "zcore",
+        "elapsed_ms": 1132.9255,
+        "flush_every": 0,
+        "kernel_ms": 1132.9255,
+        "kernel_tps": 4413.352863890874,
+        "messages": 0,
+        "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+        "preparation_ticks": 413,
+        "publication": "redstone",
+        "publication_calls": 0,
+        "publication_ms": 0.0,
+        "relaxed_mode": false,
+        "sample": 1,
+        "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+        "ticks": 5000,
+        "tps": 4413.352863890874
+      },
+      {
+        "backend": "llvm",
+        "compile_ms": 18526.125,
+        "cpu": "zcore",
+        "elapsed_ms": 1181.0294,
+        "flush_every": 0,
+        "kernel_ms": 1181.0294,
+        "kernel_tps": 4233.59486224475,
+        "messages": 0,
+        "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+        "preparation_ticks": 413,
+        "publication": "redstone",
+        "publication_calls": 0,
+        "publication_ms": 0.0,
+        "relaxed_mode": false,
+        "sample": 2,
+        "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+        "ticks": 5000,
+        "tps": 4233.59486224475
+      },
+      {
+        "backend": "llvm",
+        "compile_ms": 18526.125,
+        "cpu": "zcore",
+        "elapsed_ms": 1099.3595,
+        "flush_every": 0,
+        "kernel_ms": 1099.3595,
+        "kernel_tps": 4548.102781665142,
+        "messages": 0,
+        "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+        "preparation_ticks": 413,
+        "publication": "redstone",
+        "publication_calls": 0,
+        "publication_ms": 0.0,
+        "relaxed_mode": false,
+        "sample": 3,
+        "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+        "ticks": 5000,
+        "tps": 4548.102781665142
+      },
+      {
+        "backend": "llvm",
+        "compile_ms": 18526.125,
+        "cpu": "zcore",
+        "elapsed_ms": 1066.8186,
+        "flush_every": 0,
+        "kernel_ms": 1066.8186,
+        "kernel_tps": 4686.832419307275,
+        "messages": 0,
+        "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+        "preparation_ticks": 413,
+        "publication": "redstone",
+        "publication_calls": 0,
+        "publication_ms": 0.0,
+        "relaxed_mode": false,
+        "sample": 4,
+        "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+        "ticks": 5000,
+        "tps": 4686.832419307275
+      },
+      {
+        "backend": "llvm",
+        "compile_ms": 18526.125,
+        "cpu": "zcore",
+        "elapsed_ms": 1112.7849999999999,
+        "flush_every": 0,
+        "kernel_ms": 1112.7849999999999,
+        "kernel_tps": 4493.230947577475,
+        "messages": 0,
+        "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+        "preparation_ticks": 413,
+        "publication": "redstone",
+        "publication_calls": 0,
+        "publication_ms": 0.0,
+        "relaxed_mode": false,
+        "sample": 5,
+        "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+        "ticks": 5000,
+        "tps": 4493.230947577475
+      }
+    ],
+    "peak_memory_bytes": null,
+    "median_tps": 4493.230947577475,
+    "overlapping_agent_work": "none",
+    "rust_flags": null,
+    "affinity_mask": 256
+  },
+  "native_artifacts": [
+    {
+      "bytes": 109824000,
+      "path": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-timing\\mroww-native-cache\\6c7f5da62d8d0d65159736c5bb2fc1fe616d025719fda12bdb3f1ebdfbd18503-0\\engine.dll"
+    }
+  ]
+}

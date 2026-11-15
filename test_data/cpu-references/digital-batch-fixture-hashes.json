@@ -1,0 +1,30 @@
+[
+  {
+    "path": "instant-pistons/PM1_SORT.schem",
+    "sha256": "e338028d50a4400056e25037d1f43d37c08baed079edede6298f78b0a6341654"
+  },
+  {
+    "path": "Q2CK@Q2CK_Anpu1_Pong_KBTV.schem",
+    "sha256": "f4068257797399531ce31d56c972af32d0f73f7d8d496ce1b7b8cd1c178decec"
+  },
+  {
+    "path": "piston-research/cpu-bubblesort/CPU_BubbleSort.schem",
+    "sha256": "803dbe5d6751b152bea9b134d6c8571cfafa3e840e372f82e41a535b658f1611"
+  },
+  {
+    "path": "ZCore12B_FIX.schem",
+    "sha256": "7f074b967a043f36915f5980cbd4da54f62e45832cc385c1ce53fb21dbe9bac8"
+  },
+  {
+    "path": "pm1_redpilator.schem",
+    "sha256": "6957e4f9537d519e2133f0168fd25837a084a10e54d96166c72fd3dcf3bb8939"
+  },
+  {
+    "path": "piston-research/test-potados-counter-revised-20261008/TEST_POTADOS_PC_COUNTER.schem",
+    "sha256": "641c50d1903ccf3715759007d5b82e0f04786020d8cce80fbdbb4a3c8a3596f7"
+  },
+  {
+    "path": "piston-research/FPU_27.schem",
+    "sha256": "b6182c6c0541d692d635d72d23ecc8f33cef2fb6071f4ba4be66485ff6892bc1"
+  }
+]

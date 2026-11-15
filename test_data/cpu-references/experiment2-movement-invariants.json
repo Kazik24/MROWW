@@ -1,0 +1,463 @@
+{
+  "rows": [
+    {
+      "relaxed": false,
+      "census": null,
+      "result": "Err(Unsupported(ScratchError { position: Some(BlockPos { x: 206, y: 42, z: 40 }), reason: \"moving piston state is unsupported\" }))",
+      "fixture": "pm1_sort",
+      "compile_elapsed": "604.7974ms"
+    },
+    {
+      "relaxed": true,
+      "census": null,
+      "result": "Err(Unsupported(ScratchError { position: Some(BlockPos { x: 206, y: 42, z: 40 }), reason: \"moving piston state is unsupported\" }))",
+      "fixture": "pm1_sort",
+      "compile_elapsed": "586.755ms"
+    },
+    {
+      "relaxed": false,
+      "census": {
+        "arrangement_links": 24963,
+        "axes_histogram": {
+          "0": 1,
+          "1": 3097,
+          "2": 1010,
+          "4": 30,
+          "5": 15,
+          "6": 174,
+          "7": 2,
+          "8": 10
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 20112,
+        "groups": 4339,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 9090,
+        "small_multiaxis_groups": 1010,
+        "unknown_groups": 231
+      },
+      "result": "Ok(())",
+      "fixture": "anpu_pong",
+      "compile_elapsed": "7.149554s"
+    },
+    {
+      "relaxed": true,
+      "census": {
+        "arrangement_links": 24963,
+        "axes_histogram": {
+          "0": 1,
+          "1": 3097,
+          "2": 1010,
+          "4": 30,
+          "5": 15,
+          "6": 174,
+          "7": 2,
+          "8": 10
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 20112,
+        "groups": 4339,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 9090,
+        "small_multiaxis_groups": 1010,
+        "unknown_groups": 231
+      },
+      "result": "Ok(())",
+      "fixture": "anpu_pong",
+      "compile_elapsed": "6.8173231s"
+    },
+    {
+      "relaxed": false,
+      "census": {
+        "arrangement_links": 74868,
+        "axes_histogram": {
+          "0": 1,
+          "1": 23845,
+          "2": 4275,
+          "3": 2239,
+          "4": 292,
+          "5": 82,
+          "6": 7,
+          "7": 12
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 208,
+        "groups": 30753,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 121960,
+        "small_multiaxis_groups": 6514,
+        "unknown_groups": 393
+      },
+      "result": "Ok(())",
+      "fixture": "cpu_bubblesort",
+      "compile_elapsed": "15.824516s"
+    },
+    {
+      "relaxed": true,
+      "census": {
+        "arrangement_links": 74868,
+        "axes_histogram": {
+          "0": 1,
+          "1": 23845,
+          "2": 4275,
+          "3": 2239,
+          "4": 292,
+          "5": 82,
+          "6": 7,
+          "7": 12
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 208,
+        "groups": 30753,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 121960,
+        "small_multiaxis_groups": 6514,
+        "unknown_groups": 393
+      },
+      "result": "Ok(())",
+      "fixture": "cpu_bubblesort",
+      "compile_elapsed": "15.9514344s"
+    },
+    {
+      "relaxed": false,
+      "census": {
+        "arrangement_links": 76077,
+        "axes_histogram": {
+          "0": 1,
+          "1": 24193,
+          "2": 4849,
+          "3": 1791,
+          "4": 267,
+          "5": 68,
+          "6": 19,
+          "7": 13
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 208,
+        "groups": 31201,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 116703,
+        "small_multiaxis_groups": 6640,
+        "unknown_groups": 367
+      },
+      "result": "Ok(())",
+      "fixture": "zcore12b_sierpinski",
+      "compile_elapsed": "17.8470262s"
+    },
+    {
+      "relaxed": true,
+      "census": {
+        "arrangement_links": 76077,
+        "axes_histogram": {
+          "0": 1,
+          "1": 24193,
+          "2": 4849,
+          "3": 1791,
+          "4": 267,
+          "5": 68,
+          "6": 19,
+          "7": 13
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 208,
+        "groups": 31201,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 116703,
+        "small_multiaxis_groups": 6640,
+        "unknown_groups": 367
+      },
+      "result": "Ok(())",
+      "fixture": "zcore12b_sierpinski",
+      "compile_elapsed": "21.1037649s"
+    },
+    {
+      "relaxed": false,
+      "census": {
+        "arrangement_links": 337522,
+        "axes_histogram": {
+          "0": 1,
+          "1": 100954,
+          "2": 21240,
+          "3": 1217,
+          "4": 1713,
+          "5": 1721,
+          "6": 595,
+          "7": 73
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 5022,
+        "groups": 127514,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 305312,
+        "small_multiaxis_groups": 22457,
+        "unknown_groups": 4102
+      },
+      "result": "Ok(())",
+      "fixture": "pm1_redpilator.schem",
+      "compile_elapsed": "112.2044016s"
+    },
+    {
+      "relaxed": true,
+      "census": {
+        "arrangement_links": 337522,
+        "axes_histogram": {
+          "0": 1,
+          "1": 100954,
+          "2": 21240,
+          "3": 1217,
+          "4": 1713,
+          "5": 1721,
+          "6": 595,
+          "7": 73
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 5022,
+        "groups": 127514,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 305312,
+        "small_multiaxis_groups": 22457,
+        "unknown_groups": 4102
+      },
+      "result": "Ok(())",
+      "fixture": "pm1_redpilator.schem",
+      "compile_elapsed": "136.4959955s"
+    },
+    {
+      "relaxed": false,
+      "census": {
+        "arrangement_links": 2599,
+        "axes_histogram": {
+          "1": 742,
+          "2": 205,
+          "3": 33,
+          "4": 30,
+          "5": 16
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 0,
+        "groups": 1026,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 3552,
+        "small_multiaxis_groups": 238,
+        "unknown_groups": 46
+      },
+      "result": "Ok(())",
+      "fixture": "piston-research/test-potados-counter-revised-20261008/TEST_POTADOS_PC_COUNTER.schem",
+      "compile_elapsed": "3.2002313s"
+    },
+    {
+      "relaxed": true,
+      "census": {
+        "arrangement_links": 2599,
+        "axes_histogram": {
+          "1": 742,
+          "2": 205,
+          "3": 33,
+          "4": 30,
+          "5": 16
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 0,
+        "groups": 1026,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 3552,
+        "small_multiaxis_groups": 238,
+        "unknown_groups": 46
+      },
+      "result": "Ok(())",
+      "fixture": "piston-research/test-potados-counter-revised-20261008/TEST_POTADOS_PC_COUNTER.schem",
+      "compile_elapsed": "3.0958918s"
+    },
+    {
+      "relaxed": false,
+      "census": {
+        "arrangement_links": 46724,
+        "axes_histogram": {
+          "0": 1,
+          "1": 11473,
+          "2": 1847,
+          "3": 1417,
+          "4": 268,
+          "5": 179,
+          "6": 5
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 176,
+        "groups": 15190,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 72110,
+        "small_multiaxis_groups": 3264,
+        "unknown_groups": 452
+      },
+      "result": "Ok(())",
+      "fixture": "piston-research/FPU_27.schem",
+      "compile_elapsed": "17.3669142s"
+    },
+    {
+      "relaxed": true,
+      "census": {
+        "arrangement_links": 46724,
+        "axes_histogram": {
+          "0": 1,
+          "1": 11473,
+          "2": 1847,
+          "3": 1417,
+          "4": 268,
+          "5": 179,
+          "6": 5
+        },
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 176,
+        "groups": 15190,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 72110,
+        "small_multiaxis_groups": 3264,
+        "unknown_groups": 452
+      },
+      "result": "Ok(())",
+      "fixture": "piston-research/FPU_27.schem",
+      "compile_elapsed": "17.6409657s"
+    },
+    {
+      "relaxed": false,
+      "census": {
+        "arrangement_links": 0,
+        "axes_histogram": {},
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 0,
+        "groups": 0,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 0,
+        "small_multiaxis_groups": 0,
+        "unknown_groups": 0
+      },
+      "result": "Ok(())",
+      "fixture": "Chungus",
+      "compile_elapsed": "26.0884745s"
+    },
+    {
+      "relaxed": true,
+      "census": {
+        "arrangement_links": 0,
+        "axes_histogram": {},
+        "collision_groups": 0,
+        "collision_rows": 0,
+        "constant_links": 0,
+        "groups": 0,
+        "max_axes": 4,
+        "max_physical_rows": 64,
+        "physical_row_budget": 1000000,
+        "physical_rows": 0,
+        "small_multiaxis_groups": 0,
+        "unknown_groups": 0
+      },
+      "result": "Ok(())",
+      "fixture": "Chungus",
+      "compile_elapsed": "27.2556125s"
+    }
+  ],
+  "unknown_dynamic_coverage": null,
+  "proven_removed_rows": 0,
+  "retained_invariants": 0,
+  "variant": "compile-time movement census only; no execution, scheduler, generation or ABI changes",
+  "constant_link_source_updates": null,
+  "paired_samples": [],
+  "fixtures": "digital-batch-fixture-hashes.json (all verified)",
+  "decision": "reject bounded shared-cell exclusion and constant-movement-flip families",
+  "command": "$env:MCHPRS_REDPILATOR_PHASE_TIMINGS='1'; cargo run --release -p mchprs_core --features plot-bench --example census_sampled --locked",
+  "source_update_note": "not measured or specialized; distinct from movement flips",
+  "compile_memory_observation": {
+    "CPU": 252.875,
+    "PeakWorkingSet64": 4109086720,
+    "WorkingSet64": 4109086720
+  },
+  "paired_reason": "no useful proven movement rewrite",
+  "constant_link_movement_flips": 0,
+  "revision": "4ef372fe2da16107cb08573944520c32e943c0f3",
+  "production_metadata_bytes": 0,
+  "native_artifact_delta_bytes": 0,
+  "conservative_model": "each physical token digit can leave to zero and arrive at any legal cell independently; includes intermediate absence and overapproximates all external inputs",
+  "tests": {
+    "all_targets_all_features": "passed",
+    "focused": "2 passed",
+    "final_serial_suite": "335 passed, 0 failed, 30 ignored; 454.12 seconds"
+  },
+  "final_source_hashes": [
+    {
+      "sha256": "38f43080343c4b552bf4ef01ab29a865b989ec5fa7e20ff8798b3bba3716faf8",
+      "path": "crates/core/src/redpilator/compiler/compilation.rs"
+    },
+    {
+      "sha256": "4b488452038ec56ef8c691ba13cfe1fbfc4a0ee3dd50a309377e83ca8c4c6f45",
+      "path": "crates/core/src/redpilator/sampled/diagnostics.rs"
+    },
+    {
+      "sha256": "5896d0f632bbcfa451f466fc5850e41af61e595a1bbd566911bfcee4151800f3",
+      "path": "crates/core/src/redpilator/sampled/movement.rs"
+    },
+    {
+      "sha256": "ac772ae612fecd86a5398ce0ca56bed6c19ec5cdf8c64a46d4177c3038449cc1",
+      "path": "crates/core/src/redpilator/sampled/fold_movement.rs"
+    },
+    {
+      "sha256": "0ab7b867467b5f10dc7672ccdbb0b3107da81c3b799ab3754fb08b557dd2e14b",
+      "path": "crates/core/src/redpilator/sampled/llvm/generated.rs"
+    },
+    {
+      "sha256": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+      "path": "crates/core/src/redpilator/sampled/llvm/engine.c"
+    },
+    {
+      "sha256": "5221529779038e7e9ff99ed46b163b2aafdd092546840e20ed68a242830096ac",
+      "path": "crates/core/src/redpilator/sampled/llvm/llvm_movement.c"
+    },
+    {
+      "sha256": "43d4925290eabad3c9d915c0886657f34034e39df51e6a9a34adfff03f63c71b",
+      "path": "crates/core/src/redpilator/sampled/publication.rs"
+    },
+    {
+      "sha256": "f96f70a542e915ee0d3a6d89998e125ee998c7b65db0b6a5d417a657338c6299",
+      "path": "crates/core/src/redpilator/sampled/llvm/publication.rs"
+    }
+  ],
+  "recorded_tracked_patch_sha256": "98478118d293ce76c81de6f7c4d46d87ebcc86c59fee11c4eed64af9dc614ff0"
+}

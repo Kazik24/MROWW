@@ -1,0 +1,42 @@
+[
+  {
+    "sample": 1,
+    "status": "final_reset_match",
+    "ticks": 5000,
+    "native_tps": 88.69143290496294,
+    "compiled_tick_tps": 1598.5333903732674,
+    "compile_ms": 16698.846100000002
+  },
+  {
+    "sample": 2,
+    "status": "final_reset_match",
+    "ticks": 5000,
+    "native_tps": 87.80306730111431,
+    "compiled_tick_tps": 1455.8624012033576,
+    "compile_ms": 18746.1509
+  },
+  {
+    "sample": 3,
+    "status": "final_reset_match",
+    "ticks": 5000,
+    "native_tps": 88.62688449959005,
+    "compiled_tick_tps": 1562.2692235431346,
+    "compile_ms": 19183.1727
+  },
+  {
+    "sample": 4,
+    "status": "final_reset_match",
+    "ticks": 5000,
+    "native_tps": 79.29481019225867,
+    "compiled_tick_tps": 1636.064248504809,
+    "compile_ms": 20383.1424
+  },
+  {
+    "sample": 5,
+    "status": "final_reset_match",
+    "ticks": 5000,
+    "native_tps": 88.51816380328701,
+    "compiled_tick_tps": 1659.416895505788,
+    "compile_ms": 20889.9952
+  }
+]

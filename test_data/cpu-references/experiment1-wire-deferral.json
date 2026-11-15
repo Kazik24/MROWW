@@ -1,0 +1,260 @@
+{
+  "production_metadata_bytes": 0,
+  "revision": "4ef372fe2da16107cb08573944520c32e943c0f3",
+  "rows": [
+    {
+      "census": null,
+      "relaxed": false,
+      "fixture": "pm1_sort",
+      "result": "Err(Unsupported(ScratchError { position: Some(BlockPos { x: 206, y: 42, z: 40 }), reason: \"moving piston state is unsupported\" }))",
+      "compile_elapsed": "251.0759ms"
+    },
+    {
+      "census": null,
+      "relaxed": true,
+      "fixture": "pm1_sort",
+      "result": "Err(Unsupported(ScratchError { position: Some(BlockPos { x: 206, y: 42, z: 40 }), reason: \"moving piston state is unsupported\" }))",
+      "compile_elapsed": "272.9672ms"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 0,
+        "additional": 0,
+        "wires": 34781
+      },
+      "relaxed": false,
+      "fixture": "anpu_pong",
+      "result": "Ok(())",
+      "compile_elapsed": "4.655889s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 34781,
+        "additional": 0,
+        "wires": 34781
+      },
+      "relaxed": true,
+      "fixture": "anpu_pong",
+      "result": "Ok(())",
+      "compile_elapsed": "5.170921s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 0,
+        "additional": 0,
+        "wires": 41354
+      },
+      "relaxed": false,
+      "fixture": "cpu_bubblesort",
+      "result": "Ok(())",
+      "compile_elapsed": "16.0968175s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 41354,
+        "additional": 0,
+        "wires": 41354
+      },
+      "relaxed": true,
+      "fixture": "cpu_bubblesort",
+      "result": "Ok(())",
+      "compile_elapsed": "16.4625478s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 0,
+        "additional": 0,
+        "wires": 43454
+      },
+      "relaxed": false,
+      "fixture": "zcore12b_sierpinski",
+      "result": "Ok(())",
+      "compile_elapsed": "19.2183899s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 43454,
+        "additional": 0,
+        "wires": 43454
+      },
+      "relaxed": true,
+      "fixture": "zcore12b_sierpinski",
+      "result": "Ok(())",
+      "compile_elapsed": "20.7943953s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 0,
+        "additional": 0,
+        "wires": 168537
+      },
+      "relaxed": false,
+      "fixture": "pm1_redpilator.schem",
+      "result": "Ok(())",
+      "compile_elapsed": "112.2511606s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 168537,
+        "additional": 0,
+        "wires": 168537
+      },
+      "relaxed": true,
+      "fixture": "pm1_redpilator.schem",
+      "result": "Ok(())",
+      "compile_elapsed": "141.8397224s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 0,
+        "additional": 0,
+        "wires": 1890
+      },
+      "relaxed": false,
+      "fixture": "piston-research/test-potados-counter-revised-20261008/TEST_POTADOS_PC_COUNTER.schem",
+      "result": "Ok(())",
+      "compile_elapsed": "3.2600471s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 1890,
+        "additional": 0,
+        "wires": 1890
+      },
+      "relaxed": true,
+      "fixture": "piston-research/test-potados-counter-revised-20261008/TEST_POTADOS_PC_COUNTER.schem",
+      "result": "Ok(())",
+      "compile_elapsed": "3.0359272s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 0,
+        "additional": 0,
+        "wires": 25061
+      },
+      "relaxed": false,
+      "fixture": "piston-research/FPU_27.schem",
+      "result": "Ok(())",
+      "compile_elapsed": "17.5386035s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 25061,
+        "additional": 0,
+        "wires": 25061
+      },
+      "relaxed": true,
+      "fixture": "piston-research/FPU_27.schem",
+      "result": "Ok(())",
+      "compile_elapsed": "17.9742633s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 0,
+        "additional": 0,
+        "wires": 133623
+      },
+      "relaxed": false,
+      "fixture": "Chungus",
+      "result": "Ok(())",
+      "compile_elapsed": "25.1221095s"
+    },
+    {
+      "census": {
+        "additional_dynamic_updates": 0,
+        "potential_saved_work": 0,
+        "already_native": 133623,
+        "additional": 0,
+        "wires": 133623
+      },
+      "relaxed": true,
+      "fixture": "Chungus",
+      "result": "Ok(())",
+      "compile_elapsed": "25.8290229s"
+    }
+  ],
+  "tests": {
+    "all_targets_all_features": "passed",
+    "runtime_regression_baseline": "333 passed, 0 failed, 30 ignored; serial",
+    "focused": "passed",
+    "final_serial_suite": "335 passed, 0 failed, 30 ignored; 454.12 seconds"
+  },
+  "compile_memory_observation": {
+    "CPU": 244.375,
+    "PeakWorkingSet64": 3908448256,
+    "WorkingSet64": 3908448256
+  },
+  "dynamic_method": "zero follows from empty additional set; no ticking instrumentation",
+  "fixtures": "digital-batch-fixture-hashes.json (all verified)",
+  "decision": "reject: zero additional wires",
+  "paired_reason": "no runtime candidate exists",
+  "command": "$env:MCHPRS_REDPILATOR_PHASE_TIMINGS='1'; cargo run --release -p mchprs_core --features plot-bench --example census_sampled --locked",
+  "variant": "diagnostic method and phase-timing-only call after mode transforms/folding; no execution changes",
+  "paired_samples": [],
+  "native_artifact_delta_bytes": 0,
+  "final_source_hashes": [
+    {
+      "sha256": "38f43080343c4b552bf4ef01ab29a865b989ec5fa7e20ff8798b3bba3716faf8",
+      "path": "crates/core/src/redpilator/compiler/compilation.rs"
+    },
+    {
+      "sha256": "4b488452038ec56ef8c691ba13cfe1fbfc4a0ee3dd50a309377e83ca8c4c6f45",
+      "path": "crates/core/src/redpilator/sampled/diagnostics.rs"
+    },
+    {
+      "sha256": "5896d0f632bbcfa451f466fc5850e41af61e595a1bbd566911bfcee4151800f3",
+      "path": "crates/core/src/redpilator/sampled/movement.rs"
+    },
+    {
+      "sha256": "ac772ae612fecd86a5398ce0ca56bed6c19ec5cdf8c64a46d4177c3038449cc1",
+      "path": "crates/core/src/redpilator/sampled/fold_movement.rs"
+    },
+    {
+      "sha256": "0ab7b867467b5f10dc7672ccdbb0b3107da81c3b799ab3754fb08b557dd2e14b",
+      "path": "crates/core/src/redpilator/sampled/llvm/generated.rs"
+    },
+    {
+      "sha256": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+      "path": "crates/core/src/redpilator/sampled/llvm/engine.c"
+    },
+    {
+      "sha256": "5221529779038e7e9ff99ed46b163b2aafdd092546840e20ed68a242830096ac",
+      "path": "crates/core/src/redpilator/sampled/llvm/llvm_movement.c"
+    },
+    {
+      "sha256": "43d4925290eabad3c9d915c0886657f34034e39df51e6a9a34adfff03f63c71b",
+      "path": "crates/core/src/redpilator/sampled/publication.rs"
+    },
+    {
+      "sha256": "f96f70a542e915ee0d3a6d89998e125ee998c7b65db0b6a5d417a657338c6299",
+      "path": "crates/core/src/redpilator/sampled/llvm/publication.rs"
+    }
+  ],
+  "recorded_tracked_patch_sha256": "85fc49eb4aeb7d88e933832b9fb3f77eba9df73277af80849d8c59ebeca99e96"
+}

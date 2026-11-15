@@ -84,9 +84,72 @@ impl ArrangementFlip {
     }
 }
 
+impl Program {
+    /// Diagnostic upper bound: omit target-kind restrictions, so zero rules out every batch.
+    pub(crate) fn log_digital_batch_census(&self) {
+        let (ranges, flips, lengths) = self.digital_batch_census();
+        eprintln!("DIGITAL_BATCH_CENSUS unique_ranges={ranges} scanned_flips={flips} candidate_length_counts={lengths:?}");
+    }
+
+    fn digital_batch_census(&self) -> (usize, usize, std::collections::BTreeMap<usize, usize>) {
+        let ranges: HashSet<_> = self
+            .movement_fixed_ranges
+            .iter()
+            .flatten()
+            .flatten()
+            .flat_map(|edges| edges.iter().map(|range| (range.start, range.end)))
+            .collect();
+        let mut lengths = std::collections::BTreeMap::<usize, usize>::new();
+        let mut flips = 0;
+        for &(start, end) in &ranges {
+            flips += end - start;
+            let mut cursor = start;
+            while cursor < end {
+                let first = self.movement_flips[cursor];
+                let mut links = HashSet::new();
+                let mut next = cursor;
+                while next < end {
+                    let flip = self.movement_flips[next];
+                    if flip.target != first.target || flip.side || !matches!(flip.source(), ArrangementSource::Token(_)) || !links.insert(flip.link) {
+                        break;
+                    }
+                    next += 1;
+                }
+                if next - cursor >= 2 {
+                    *lengths.entry(next - cursor).or_default() += 1;
+                }
+                cursor = next.max(cursor + 1);
+            }
+        }
+        (ranges.len(), flips, lengths)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn census_respects_boundaries_uniqueness_and_incompatible_records() {
+        let mut program = transition_program(false);
+        let token = ArrangementSource::Token(0);
+        let flip = |target, source, link, side| ArrangementFlip::new(target, source, 0, link, true, side).unwrap();
+        program.movement_flips = vec![
+            flip(1, token, 0, false),
+            flip(1, token, 1, false),
+            flip(1, token, 1, false), // Repeated link starts a new run.
+            flip(1, token, 2, false),
+            flip(1, token, 3, true),
+            flip(1, ArrangementSource::Component(0), 4, false),
+            flip(1, token, 5, false),
+            flip(0, token, 6, false),
+            flip(0, token, 7, false),
+        ];
+        program.movement_fixed_ranges = vec![vec![Some([0..7, 7..9]), Some([0..7, 7..9])]];
+        assert_eq!(program.digital_batch_census(), (2, 9, [(2, 3)].into()));
+        program.movement_fixed_ranges = vec![vec![Some([0..1, 1..2])]];
+        assert!(program.digital_batch_census().2.is_empty());
+    }
 
     fn transition_program(conditional: bool) -> Program {
         use super::super::{pistons::PistonToken, program::InputArrangement};
