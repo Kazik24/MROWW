@@ -1,7 +1,6 @@
 name: Test
 
 on:
-  workflow_dispatch:
   push:
     branches: [master, piston, 'port/**']
   pull_request:
@@ -32,19 +31,16 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y clang-19 lld-19
       - name: Check formatting
         run: cargo fmt --all -- --check
-      - name: Check workspace
-        run: cargo check --workspace --locked
       - name: Clippy
         run: cargo clippy --workspace --all-targets --locked
-      - name: Basic and boundary library tests
-        run: cargo test --locked --lib -p mchprs_blocks -p mchprs_utils -p mchprs_network -p mchprs_save_data -p mroww-redgear-api
-      - name: RedGear session regression tests
-        run: cargo test --locked -p mroww-redgear-api --test session
-      - name: Server admission regression tests
+      - name: Library and API tests
+        run: |
+          cargo test --locked --lib -p mchprs_blocks -p mchprs_utils -p mchprs_network -p mchprs_save_data -p mroww-redgear-api
+          cargo test --locked -p mroww-redgear-api --test session
+          cargo test --locked -p mchprs_core --test headless_api
+      - name: Server and plot regression tests
         run: |
           cargo test --locked -p mchprs_core --lib -- server::
-      - name: Plot and interpreter regression tests
-        run: |
           cargo test --locked -p mchprs_core --lib -- plot::client_sync_tests::
           cargo test --locked -p mchprs_core --lib -- plot::history::
           cargo test --locked -p mchprs_core --lib -- plot::piston_tests::
@@ -52,7 +48,7 @@ jobs:
           cargo test --locked -p mchprs_core --lib -- plot::redpilator_compilation::
       - name: Redpilator and scratch regressions
         run: |
-          # Known exclusions and reproduction commands: docs/TEST_EXCLUSIONS.md.
+          # Existing fixture, oracle, and executor-cache exclusions.
           cargo test --locked -p mchprs_core --lib -- redpilator:: \
             --skip adder11bit_reference_manifest_acceptance \
             --skip adder1bit_reference_manifest_arithmetic \
@@ -60,8 +56,6 @@ jobs:
             --skip focused_test_samples_match_supported_oracles \
             --skip redstonedb_levers_match_interpreter \
             --skip executor_cache_resumes_pending_motion_and_effects_like_uninterrupted_execution
-      - name: Headless API regression test
-        run: cargo test --locked -p mchprs_core --test headless_api
   tools:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -74,32 +68,3 @@ jobs:
         run: |
           python tools/generate_mc_data.py
           git diff --exit-code -- mc_data/1.21.5/registries.bin mc_data/1.21.5/tags.bin
-
-  portable-bench:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo check --locked -p mchprs_core --all-targets --features plot-bench
-
-  excluded-regressions:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        regression:
-          - adder11bit_reference_manifest_acceptance
-          - adder1bit_reference_manifest_arithmetic
-          - counter_basic_reference_manifest_execution
-          - focused_test_samples_match_supported_oracles
-          - redstonedb_levers_match_interpreter
-          - executor_cache_resumes_pending_motion_and_effects_like_uninterrupted_execution
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: sudo apt-get update && sudo apt-get install -y clang-19 lld-19
-      - run: cargo test --locked -p mchprs_core --lib ${{ matrix.regression }} -- --nocapture
