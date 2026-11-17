@@ -1,0 +1,13 @@
+{
+  "revision": "7347a517f9af04e2dad8037f870460de7cd7fa2d",
+  "files": {
+    "test_data/cpu-references/experiment4-image-crossover-plan.json": "604577053ac352b27d9ec8d6affbf88f504eec4a595e4809a64810f06fd2919e",
+    "test_data/cpu-references/experiment4-image-crossover-preregistration.md": "80a588b9153230fa12bdc9f77c29c6f56011ad1cba7bda9b073191423e5bfea1",
+    "tools/experiment_image_crossover.py": "ef900cae9fa1715f91326fc5aabc42e34c1805cdfaae66fcf750de1a620024eb",
+    "crates/core/examples/bench_pm1_compare.rs": "fd89bb34ccb7d9a3d9fa08d1f126c7b8132ed8df156a61dd91b24a06f871b79b",
+    "crates/core/test_support/image_crossover.rs": "20db673e46d6af15606a456e7baa154922a804d03db4cd4849634fc50ee85c27",
+    "crates/core/src/redpilator/compiler.rs": "b5fcb8478a4283e028a2b04725c11d0fb251b68423319ccdccf558cd0f108f2b",
+    "crates/core/src/redpilator/sampled/llvm/benchmark.rs": "0e29269f31b4ca3bb6fb8b31e584907aca3641f5417adf55f6dd1ea7f9550293",
+    "target/release/examples/bench_pm1_compare.exe": "8722d807dc5a72d730db9f8a96a2c1ae0f9190ecb8f6fee93f3f445b66d71b27"
+  }
+}

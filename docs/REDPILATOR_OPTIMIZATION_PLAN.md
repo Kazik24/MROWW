@@ -1,6 +1,9 @@
+
 # Redpilator: verified movement optimization plan
 
-Status: digital contribution batching rejected by the census on 2026-11-14. No runtime optimization or speedup has been established. The active follow-up sequence is in [section 13](#13-next-experiments-run-sequentially).
+Status: batching and the bounded wire-deferral/invariant proposals were rejected. The bounded native kernel prototype was also not adopted: its strict gain over alignment alone was below the target, and relaxed performance regressed. No production optimization has been retained. The next proposed experiment is the offline stochastic tuner in [section 15](#15-offline-stochastic-optimization-experiments).
+
+Results: [wire deferral](../test_data/cpu-references/experiment1-wire-deferral.md), [movement invariants](../test_data/cpu-references/experiment2-movement-invariants.md), and [native kernels/alignment control](../test_data/cpu-references/experiment3-movement-kernels.md). These decisions supersede the pending wording of the historical experiment instructions below.
 
 The [census report](../test_data/cpu-references/digital-batch-census.md) found zero possible batches across all seven CPU families in both strict and relaxed modes, even with an eligibility upper bound. Do not implement the batching descriptors, checker or kernels described below. Sections 1–12 retain the original proposal and its reasoning; section 13 supersedes its implementation sequence.
 
@@ -492,3 +495,100 @@ These are recorded research directions, not additional experiments to execute be
 - **Guarded execution specialization:** generate a bounded specialized sequence when proven preconditions hold, with canonical fallback before any mutation when they do not. Guard source stability, connectivity and original operation cost. Measure guard overhead and code-size/instruction-cache costs before retaining it.
 
 General SMT integration, global state-space exploration and cross-target notification coalescing remain deferred. A specific measured opportunity must justify their larger correctness and maintenance costs.
+
+## 15. Offline stochastic optimization experiments
+
+Randomness selects build candidates offline. The selected production implementation remains deterministic, with normal validated artifact identity. Do not tune on live player plots or add runtime random decisions.
+
+### 15.1 First choice: randomized helper-alignment search
+
+Experiment 3 found that aligning the generic flip helper to 64 bytes improved strict ZCore throughput by 4.13% with 16 extra code bytes. This is one machine/workload result, not a general alignment policy. The generated kernels added only 1.46% over that control while adding about 9 KB. Investigate layout independently before adding more specialization.
+
+Reuse `tools/experiment_movement_kernels.py`, the explicit LLVM environment and the existing paired benchmark runner. Keep this benchmark tooling; do not add an autotuning dependency for a small discrete search.
+
+**Initial search space:** alignment of up to four hot helper functions, selected from a current profile. Candidate names to inspect include `apply_movement_flip`, `set_arranged`, `execute_output` and `drain`. Each parameter takes `default`, 16, 32, 64 or 128 bytes. Confirm each function is emitted and inspect actual linked addresses: an attribute on an inlined-away function may have no effect.
+
+Version one changes only function alignment. Keep the native compiler version, optimization level, aliasing assumptions, arithmetic rules, instruction order, batch size and generated tables fixed. Function ordering, inlining and loop-unroll choices are separate later search spaces, not additional dimensions in the first experiment.
+
+**Bounded algorithm:**
+
+```text
+references = [production baseline, existing flip-helper alignment-64 control]
+evaluate references under the same current environment
+
+candidates = 24 unique random configurations from a recorded PRNG seed
+evaluate candidates in randomized blocks with interleaved references
+retain the best 4 provisional configurations
+
+generate up to 8 new configurations by changing one parameter of a survivor
+evaluate with the same protocol
+freeze at most 3 finalists before long validation
+```
+
+The default budget is 32 distinct search candidates plus the two references. Record attempted duplicates and build failures; do not silently extend the budget. Cache builds by source, program, tools and configuration identity. Build the round before timing it; never overlap builds with measurements. Repeated evaluation of the same configuration should reuse the same artifact.
+
+Inspect disassembly and actual function offsets to identify ineffective changes. Record `.text` size, native compile/link time and metadata alongside measurements. Apply an initial hard `.text` growth cap of 4 KiB per module for this alignment-only experiment; this is a proposed experiment limit, not a measured optimum.
+
+**Screening:** use PM1 and ZCore, strict and relaxed, as four separate training workloads. Use identical frozen stimuli and preparation, then short runs with at least three alternating paired measurements per configuration. Short results rank candidates only. Near ties remain ties; allocate repeat measurements to uncertain finalists rather than treating one fast sample as a win.
+
+**Objective:** maximize the geometric mean of throughput ratios across those four workloads, subject to correctness, code-size limits and per-workload regression gates. Record every workload separately so a large win cannot hide a regression. Compare against both production and the alignment-64 control. Prefer the smaller/simpler configuration when measured gains are indistinguishable.
+
+**Confirmation:** freeze finalists, then run fresh long measurements with at least five alternating pairs per supported workload/mode. Use new measurement sessions and unchanged profiles. Include all seven CPU families, their original oracles, full relevant regression coverage, and live publication/client costs before general adoption. The five non-training CPU families are holdouts: do not repeatedly tune against their results and continue calling them holdouts.
+
+Keep inference honest: searching many candidates tends to select favorable noise. The search-round winner is only a proposal. Use independent confirmation, report distributions and paired uncertainty, and investigate borderline results. Preserve the existing 3% gain/2% regression engineering gates. More complex candidates must also justify their cost relative to the simplest validated alignment control.
+
+If only a narrow machine/compiler/workload benefits, report that scope. Do not claim general hardware portability. Record the target architecture and toolchain, and keep a generic fallback if a target-specific policy is eventually adopted.
+
+**Stop:** reject the search result if fresh confirmation loses the gain, regressions exceed the gate, or the current alignment-64 control remains equally effective with less complexity. A no-go does not justify expanding the search indefinitely.
+
+**Experiment 4 outcome (2026-11-16): blocked at timing calibration.**
+See [the alignment search report](../test_data/cpu-references/experiment4-alignment-search.md)
+and its machine-readable measurements. All 24 seeded configurations plus both
+controls built for the four training programs; maximum `.text` growth was 208
+bytes. In strict PM1, production and flip64 images differ only in one COFF
+timestamp byte, yet separate-image full-protocol comparisons showed apparent
+median gains of +2.93%, +1.42% and +1.40%. Equal warmup and higher process
+priority did not eliminate the offset/outliers. The cause remains unresolved;
+the loaded-address probe does not establish ASLR causality. The current method
+cannot attribute gains at the 3% / 2% gates reliably. No valid four-workload
+ranking, real mutations, finalists, holdout or live-client validation followed.
+Production alignment remains unchanged, and the earlier ZCore +4.13% is still
+an unvalidated candidate observation. Resolve this calibration before resuming
+the bounded search; no generated-kernel selection or semantic experiment was
+started.
+
+### 15.2 Second choice: randomized selection of generated kernels
+
+This searches which existing exact-sequence kernels to emit, not their semantics. It is lower priority because experiment 3 found low coverage and a relaxed regression.
+
+Represent a candidate as a subset of profiled physical ranges plus bounded dispatcher parameters. Mutations add, remove or swap a range. Respect total emitted-operation and measured code-size caps; use frozen training profiles and retain the generic path for all unselected ranges.
+
+Start with random subsets weighted by dynamic coverage, followed by local mutations of the best few candidates. Evaluate actual whole-kernel runtime; summed instrumented TSC costs are only a proposal heuristic. The objective must include dispatch overhead and comparison with the validated alignment policy. Keep physical graph records and original logical costs distinct.
+
+Proceed only if a coverage/code-size study suggests a materially better frontier than the previous top-16 selection. Do not assume a genetic algorithm can compensate for diffuse profiles. Freeze selected kernels before held-out correctness and performance runs. Do not run this search concurrently with alignment tuning; hold layout policy fixed.
+
+### 15.3 Later: stochastic search over proved local rewrites
+
+For a measured hot, bounded primitive, randomly propose alternatives from a small typed expression language. Start with pure integer input/output calculations; exclude arbitrary pointer mutation, callbacks and scheduling.
+
+Pipeline:
+
+```text
+generate candidate
+  -> cheap differential counterexample tests
+  -> independent exhaustive or bit-vector equivalence check
+  -> compile and measure only proved candidates
+  -> confirm finalists in full runtime workloads
+```
+
+Model exact bit widths, overflow, shifts and preconditions. Treat proof timeout or unknown as rejection. If memory effects are later admitted, the proof must include aliasing, permitted writes, errors and all observable effects. Tests cannot substitute for universal equivalence, and an abstract proof must correspond to the actual lowered implementation.
+
+Use simple random search first. Simulated annealing could later explore one-mutation neighbors when measured evidence shows local search getting stuck; genetic populations or Bayesian search require a demonstrated benefit over the simpler search. Every variant needs fixed seeds, finite budgets and independent confirmation.
+
+This direction is inspired by [STOKE's stochastic search and equivalence infrastructure](https://github.com/StanfordPL/stoke), whose maintainers describe it as a research prototype rather than a general production optimizer. Do not introduce STOKE as a dependency. [OpenTuner's search-technique tutorial](https://opentuner.org/tutorial/techniques/) provides a useful separation of configuration generation, measurement and selection; the initial Redpilator experiment needs only a small implementation of that pattern.
+
+### 15.4 Required artifacts
+
+Save the search seed, full configuration list, source/program/tool hashes, actual code layout, build costs, raw paired timings, correctness results, training/holdout split and final decision. Retain rejected samples as well as winners. Identify whether a reported gain is versus production, alignment-only or another selected configuration.
+
+Add self-checks for configuration bounds, deterministic proposal generation, duplicate suppression, source-anchor drift, correctness rejection and objective aggregation. Keep timing and correctness instrumentation out of final timed modules. No production change is authorized by a provisional search score alone.

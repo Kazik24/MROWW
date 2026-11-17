@@ -48,6 +48,23 @@ pub struct Compiler {
 }
 
 impl Compiler {
+    #[cfg(feature = "plot-bench")]
+    pub fn benchmark_addresses(&self) -> [usize; 3] {
+        self.llvm_runtime.as_ref().expect("address capture requires LLVM").benchmark_addresses()
+    }
+
+    /// Restart a validated benchmark module without mutating process-wide loader environment.
+    #[cfg(feature = "plot-bench")]
+    pub fn benchmark_restart_module<W: World>(
+        &self, pristine: &W, bounds: (BlockPos, BlockPos), ticks: Vec<TickEntry>, path: &std::path::Path,
+    ) -> Result<Self, CompileError> {
+        let mut fresh = self.benchmark_restart(pristine, bounds, ticks.clone())?;
+        assert!(Arc::ptr_eq(&self.cached_program().unwrap(), &fresh.cached_program().unwrap()), "benchmark restart changed the physical program");
+        fresh.llvm_runtime = Some(LlvmRuntime::benchmark_new(&fresh.cached_program().unwrap(), &ticks, path).map_err(CompileError::Unsupported)?);
+        fresh.llvm_runtime.as_mut().unwrap().initialize_tick(pristine.piston_state().logical_tick);
+        Ok(fresh)
+    }
+
     /// Experimental benchmark helper: the unticked seed and pristine world must describe the same fixture.
     #[cfg(feature = "plot-bench")]
     pub fn benchmark_restart<W: World>(&self, pristine: &W, bounds: (BlockPos, BlockPos), ticks: Vec<TickEntry>) -> Result<Self, CompileError> {
@@ -70,6 +87,11 @@ impl Compiler {
             .expect("batch experiment requires LLVM")
             .benchmark_tick_batch(count, mode)
             .map_err(ExecutionError)
+    }
+
+    #[cfg(feature = "plot-bench")]
+    pub fn benchmark_movement_profile(&self, reset: bool) -> Option<Vec<u64>> {
+        self.llvm_runtime.as_ref()?.benchmark_movement_profile(reset)
     }
 
     #[cfg(feature = "plot-bench")]

@@ -1,0 +1,311 @@
+diff --git a/crates/core/Cargo.toml b/crates/core/Cargo.toml
+index 2b2a4bcd..2db557f7 100644
+--- a/crates/core/Cargo.toml
++++ b/crates/core/Cargo.toml
+@@ -24,6 +24,10 @@ required-features = ["plot-bench"]
+ name = "bench_engine_compare"
+ required-features = ["plot-bench"]
+ 
++[[example]]
++name = "experiment_movement_kernel_guards"
++required-features = ["plot-bench"]
++
+ [[example]]
+ name = "bench_pm1_compare"
+ required-features = ["plot-bench"]
+diff --git a/crates/core/examples/bench_engine_compare.rs b/crates/core/examples/bench_engine_compare.rs
+index b3656ee6..d2026db7 100644
+--- a/crates/core/examples/bench_engine_compare.rs
++++ b/crates/core/examples/bench_engine_compare.rs
+@@ -24,8 +24,11 @@ fn main() {
+     let mut flush_every = 0u32;
+     let mut relaxed_mode = false;
+     let mut samples = 3u32;
++    let mut modules: Option<Vec<PathBuf>> = None;
+     for arg in &args[2..] {
+-        if arg == "--relaxed" {
++        if let Some(path) = arg.strip_prefix("--modules=") {
++            modules = Some(serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap());
++        } else if arg == "--relaxed" {
+             relaxed_mode = true;
+         } else if let Some(mode) = arg.strip_prefix("--publication=") {
+             publication = PublicationMode::parse(mode).expect("publication: io, redstone or all");
+@@ -37,6 +40,7 @@ fn main() {
+             ticks = arg.parse().expect("tick count or --publication/--flush-every option");
+         }
+     }
++    if let Some(modules) = &modules { samples = modules.len().try_into().unwrap(); }
+     let program_ticks = if pm1 {
+         11_752
+     } else if ticks > 5_000 {
+@@ -85,9 +89,13 @@ fn main() {
+     let mut results = Vec::new();
+     for sample in 1..=samples {
+         let mut world = cpus::load_cpu(cpu);
+-        let mut compiler = seed
+-            .benchmark_restart(&world, bounds, world.scheduler().iter_entries().collect())
+-            .unwrap();
++        let module = modules.as_ref().map(|paths| &paths[(sample - 1) as usize]);
++        let pending = world.scheduler().iter_entries().collect();
++        let mut compiler = match module {
++            Some(path) => seed.benchmark_restart_module(&world, bounds, pending, path),
++            None => seed.benchmark_restart(&world, bounds, pending),
++        }.unwrap();
++        if modules.is_some() { compiler.benchmark_tick_batch(0, 0).unwrap(); }
+         compiler.try_on_use_block(cpu.origin + cpu.start).unwrap();
+         for _ in 0..preparation {
+             compiler.tick().unwrap();
+@@ -98,6 +106,7 @@ fn main() {
+         }
+         let mut publication_calls = 0u32;
+         let mut publication_elapsed = std::time::Duration::ZERO;
++        compiler.benchmark_movement_profile(true);
+         let start = Instant::now();
+         for tick in 1..=ticks {
+             compiler.tick().unwrap();
+@@ -109,10 +118,13 @@ fn main() {
+             }
+         }
+         let elapsed = start.elapsed();
++        if let Some(profile) = compiler.benchmark_movement_profile(false) {
++            std::fs::write(output.with_extension("movement-profile.json"), serde_json::to_vec(&profile).unwrap()).unwrap();
++        }
+         let native_state_hash = kernel_analysis.then(|| {
+             let snapshot = compiler.benchmark_snapshot().unwrap();
+             if let Some(expected) = &expected_snapshot {
+-                assert_eq!(&snapshot, expected, "fresh executor state differs");
++                assert!(&snapshot == expected, "fresh executor state differs: first word {:?}", snapshot.iter().zip(expected).position(|(a, b)| a != b));
+             } else {
+                 expected_snapshot = Some(snapshot.clone());
+             }
+@@ -160,6 +172,8 @@ fn main() {
+             assert!(world.piston_state().events.is_empty() && world.piston_state().motions.is_empty());
+         }
+         let row = json!({"backend":"llvm","relaxed_mode":relaxed_mode,"cpu":cpu_name,"sample":sample,"ticks":ticks,"preparation_ticks":preparation,"flush_every":flush_every,"publication":publication.name(),"publication_calls":publication_calls,"publication_ms":publication_elapsed.as_secs_f64()*1000.0,"elapsed_ms":elapsed.as_secs_f64()*1000.0,"kernel_ms":(elapsed-publication_elapsed).as_secs_f64()*1000.0,"kernel_tps":ticks as f64/(elapsed-publication_elapsed).as_secs_f64(),"tps":ticks as f64/elapsed.as_secs_f64(),"compile_ms":compile_ms,"screen_sha256":screen_hash,"messages":messages,"native_state_sha256":native_state_hash});
++        let mut row = row;
++        row["module"] = json!(module);
+         println!("FAIR_RESULT {row}");
+         results.push(row);
+         std::fs::write(&output, serde_json::to_vec_pretty(&results).unwrap()).unwrap();
+diff --git a/crates/core/examples/bench_pm1_compare.rs b/crates/core/examples/bench_pm1_compare.rs
+index 83d86883..796f132f 100644
+--- a/crates/core/examples/bench_pm1_compare.rs
++++ b/crates/core/examples/bench_pm1_compare.rs
+@@ -8,6 +8,7 @@ mod pm1;
+ 
+ use mchprs_core::redpilator::{CompilerOptions, PublicationMode};
+ use serde_json::{Value, json};
++use sha2::{Digest, Sha256};
+ use std::{path::PathBuf, time::Instant};
+ 
+ fn main() {
+@@ -17,7 +18,10 @@ fn main() {
+     let backend = &args[2];
+     assert!(["llvm", "rust", "interpreter"].contains(&backend.as_str()));
+     let ticks: u32 = args.get(3).map_or(protocol.ticks, |s| s.parse().unwrap());
+-    let samples: u32 = args.get(4).map_or(3, |s| s.parse().unwrap());
++    let mut samples: u32 = args.get(4).map_or(3, |s| s.parse().unwrap());
++    let modules: Option<Vec<PathBuf>> = args.iter().find_map(|arg| arg.strip_prefix("--modules="))
++        .map(|path| serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap());
++    if let Some(modules) = &modules { assert_eq!(backend, "llvm"); samples = modules.len().try_into().unwrap(); }
+     assert!(ticks > 0 && samples > 0);
+     let relaxed = args.iter().any(|arg| arg == "--relaxed");
+     let until_idle = args.iter().any(|arg| arg == "--until-idle");
+@@ -44,12 +48,21 @@ fn main() {
+         None
+     };
+     let mut results = Vec::new();
++    let mut expected_snapshot = None;
+     for sample in 1..=samples {
+         let (mut world, bounds) = pm1::load(&protocol);
++        let module = modules.as_ref().map(|paths| &paths[(sample - 1) as usize]);
+         let mut compiler = seed.as_ref().map(|seed| {
+-            seed.benchmark_restart(&world, bounds, world.scheduler().iter_entries().collect())
+-                .unwrap()
++            let pending = world.scheduler().iter_entries().collect();
++            match module {
++                Some(path) => seed.benchmark_restart_module(&world, bounds, pending, path),
++                None => seed.benchmark_restart(&world, bounds, pending),
++            }.unwrap()
+         });
++        if modules.is_some() {
++            // Identical clock input keeps unlimited command-window counters comparable, not masked.
++            compiler.as_mut().unwrap().benchmark_tick_batch(0, 0).unwrap();
++        }
+         let before = pm1::outputs(&world, &protocol);
+         if let Some(compiler) = &mut compiler {
+             compiler.try_on_use_block(cpu.origin + cpu.start).unwrap();
+@@ -87,6 +100,20 @@ fn main() {
+             }
+         }
+         let elapsed = started.elapsed();
++        let native_state_hash = if backend == "llvm" && std::env::var_os("MCHPRS_ENGINE_KERNEL_ANALYSIS").is_some() {
++            let snapshot = compiler.as_ref().unwrap().benchmark_snapshot().unwrap();
++            if let Some(expected) = &expected_snapshot {
++                assert!(&snapshot == expected, "module state differs: first word {:?}", snapshot.iter().zip(expected).position(|(a, b)| a != b));
++            }
++            else { expected_snapshot = Some(snapshot.clone()); }
++            let bytes: Vec<_> = snapshot.iter().flat_map(|word| word.to_le_bytes()).collect();
++            Some(format!("{:x}", Sha256::digest(&bytes)))
++        } else { None };
++        // Short alignment screens still finish the unchanged protocol outside timing.
++        if modules.is_some() {
++            assert!(completed <= protocol.ticks);
++            for _ in completed..protocol.ticks { compiler.as_mut().unwrap().tick().unwrap(); }
++        }
+         if until_idle {
+             assert_eq!(quiet_ticks, 16, "PM1 did not halt within the requested maximum tick count");
+         }
+@@ -97,7 +124,7 @@ fn main() {
+         let commands: Vec<_> = world.command_output().map(str::to_owned).collect();
+         if let Some(expected) = &expected {
+             assert_eq!(expected["fixture_sha256"], pm1::SHA256);
+-            assert_eq!(expected["ticks"], completed);
++            assert_eq!(expected["ticks"], if modules.is_some() { protocol.ticks } else { completed });
+             assert_eq!(after, expected["outputs"], "lamp or physical RAM output differs");
+             assert_eq!(json!(commands), expected["commands"], "ordered PM1 command output differs");
+         }
+@@ -106,6 +133,9 @@ fn main() {
+             "publication":publication,"flush_every":flush_every,"publication_ms":publication_elapsed.as_secs_f64()*1000.0,
+             "compile_ms":seed.as_ref().map(|s|s.stats().unwrap().duration.as_secs_f64()*1000.0),
+             "outputs":after,"commands":commands,"quiet":pm1::quiet(&world),"outputs_changed":before!=after,"reference_matched":expected.is_some()});
++        let mut row = row;
++        row["module"] = json!(module);
++        row["native_state_sha256"] = json!(native_state_hash);
+         println!(
+             "PM1_RESULT backend={backend} sample={sample} ticks={completed} tps={:.1} messages={}",
+             row["tps"].as_f64().unwrap(),
+diff --git a/crates/core/src/redpilator/compiler.rs b/crates/core/src/redpilator/compiler.rs
+index 8a2494fd..1be74c02 100644
+--- a/crates/core/src/redpilator/compiler.rs
++++ b/crates/core/src/redpilator/compiler.rs
+@@ -48,6 +48,18 @@ pub struct Compiler {
+ }
+ 
+ impl Compiler {
++    /// Restart a validated benchmark module without mutating process-wide loader environment.
++    #[cfg(feature = "plot-bench")]
++    pub fn benchmark_restart_module<W: World>(
++        &self, pristine: &W, bounds: (BlockPos, BlockPos), ticks: Vec<TickEntry>, path: &std::path::Path,
++    ) -> Result<Self, CompileError> {
++        let mut fresh = self.benchmark_restart(pristine, bounds, ticks.clone())?;
++        assert!(Arc::ptr_eq(&self.cached_program().unwrap(), &fresh.cached_program().unwrap()), "benchmark restart changed the physical program");
++        fresh.llvm_runtime = Some(LlvmRuntime::benchmark_new(&fresh.cached_program().unwrap(), &ticks, path).map_err(CompileError::Unsupported)?);
++        fresh.llvm_runtime.as_mut().unwrap().initialize_tick(pristine.piston_state().logical_tick);
++        Ok(fresh)
++    }
++
+     /// Experimental benchmark helper: the unticked seed and pristine world must describe the same fixture.
+     #[cfg(feature = "plot-bench")]
+     pub fn benchmark_restart<W: World>(&self, pristine: &W, bounds: (BlockPos, BlockPos), ticks: Vec<TickEntry>) -> Result<Self, CompileError> {
+@@ -72,6 +84,11 @@ impl Compiler {
+             .map_err(ExecutionError)
+     }
+ 
++    #[cfg(feature = "plot-bench")]
++    pub fn benchmark_movement_profile(&self, reset: bool) -> Option<Vec<u64>> {
++        self.llvm_runtime.as_ref()?.benchmark_movement_profile(reset)
++    }
++
+     #[cfg(feature = "plot-bench")]
+     pub fn benchmark_snapshot(&self) -> Result<Vec<u32>, ExecutionError> {
+         self.llvm_runtime
+diff --git a/crates/core/src/redpilator/sampled/llvm/benchmark.rs b/crates/core/src/redpilator/sampled/llvm/benchmark.rs
+index 3cb02a88..6fb42984 100644
+--- a/crates/core/src/redpilator/sampled/llvm/benchmark.rs
++++ b/crates/core/src/redpilator/sampled/llvm/benchmark.rs
+@@ -9,6 +9,10 @@ fn invalid() -> ScratchError {
+ }
+ 
+ impl LlvmRuntime {
++    pub(in crate::redpilator) fn benchmark_movement_profile(&self, reset: bool) -> Option<Vec<u64>> {
++        self.library.movement_profile(reset)
++    }
++
+     /// Count zero performs allocation and clock setup outside the measured interval.
+     pub(in crate::redpilator) fn benchmark_tick_batch(&mut self, count: u32, mode: u32) -> Result<(), ScratchError> {
+         if mode > 3 || (mode == 3 && count > 32) {
+diff --git a/crates/core/src/redpilator/sampled/llvm/library.rs b/crates/core/src/redpilator/sampled/llvm/library.rs
+index a0177d83..1d5e6972 100644
+--- a/crates/core/src/redpilator/sampled/llvm/library.rs
++++ b/crates/core/src/redpilator/sampled/llvm/library.rs
+@@ -39,6 +39,25 @@ pub(super) struct Library {
+ 
+ #[cfg(any(windows, target_os = "linux"))]
+ impl Library {
++    #[cfg(feature = "plot-bench")]
++    pub(super) fn movement_profile(&self, reset: bool) -> Option<Vec<u64>> {
++        // SAFETY: This optional diagnostic export belongs to the retained experimental module.
++        let read: unsafe extern "C" fn(u32, *mut u64, u32) -> u32 = unsafe { self._module.symbol(b"ne_movement_profile\0").ok()? };
++        if reset {
++            // SAFETY: Reset touches only private profiling counters, with no output buffer.
++            unsafe { read(1, std::ptr::null_mut(), 0) };
++            return Some(Vec::new());
++        }
++        // SAFETY: A null output queries the required size, or resets counters when requested.
++        let count = unsafe { read(0, std::ptr::null_mut(), 0) };
++        if count > 1_000_000 {
++            return None;
++        }
++        let mut words = vec![0; count as usize];
++        // SAFETY: The synchronous export receives exactly its requested writable capacity.
++        (unsafe { read(0, words.as_mut_ptr(), count) } == count).then_some(words)
++    }
++
+     /// Load the native executor and resolve its required API.
+     ///
+     /// Inputs: The selected cache artifact or explicit library path.
+@@ -68,6 +87,15 @@ impl Library {
+                 reason: "could not prepare LLVM module; see server log for details",
+             }
+         })?;
++        Self::load_path(&path, program)
++    }
++
++    #[cfg(feature = "plot-bench")]
++    pub(super) fn benchmark_load(path: &Path, program: &super::generated::GeneratedProgram) -> Result<Self, ScratchError> {
++        Self::load_path(path, Some(program))
++    }
++
++    fn load_path(path: &Path, program: Option<&super::generated::GeneratedProgram>) -> Result<Self, ScratchError> {
+         let load_started = std::time::Instant::now();
+         let module = Module::open(&path)?;
+         if std::env::var_os("MCHPRS_LLVM_DIAGNOSTICS").is_some() {
+diff --git a/crates/core/src/redpilator/sampled/llvm/mod.rs b/crates/core/src/redpilator/sampled/llvm/mod.rs
+index e298cf29..fa7cb96a 100644
+--- a/crates/core/src/redpilator/sampled/llvm/mod.rs
++++ b/crates/core/src/redpilator/sampled/llvm/mod.rs
+@@ -205,6 +205,20 @@ impl LlvmRuntime {
+         program: &Program,
+         ticks: &[TickEntry],
+         monitor: Option<&crate::redpilator::TaskMonitor>,
++    ) -> Result<Self, ScratchError> {
++        Self::new_module(program, ticks, monitor, #[cfg(feature = "plot-bench")] None)
++    }
++
++    #[cfg(feature = "plot-bench")]
++    pub(in crate::redpilator) fn benchmark_new(program: &Program, ticks: &[TickEntry], path: &std::path::Path) -> Result<Self, ScratchError> {
++        Self::new_module(program, ticks, None, Some(path))
++    }
++
++    fn new_module(
++        program: &Program,
++        ticks: &[TickEntry],
++        monitor: Option<&crate::redpilator::TaskMonitor>,
++        #[cfg(feature = "plot-bench")] module: Option<&std::path::Path>,
+     ) -> Result<Self, ScratchError> {
+         if monitor.is_some_and(crate::redpilator::TaskMonitor::cancelled) {
+             return Err(ScratchError {
+@@ -223,6 +237,12 @@ impl LlvmRuntime {
+             eprintln!("LLVM program encoding_ms={:.3}", encoding_started.elapsed().as_secs_f64() * 1000.0);
+         }
+         log_artifact_diagnostics(generated.encoded.blob.len());
++        #[cfg(feature = "plot-bench")]
++        let library = match module {
++            Some(path) => Library::benchmark_load(path, &generated)?,
++            None => Library::load_program(&generated, monitor)?,
++        };
++        #[cfg(not(feature = "plot-bench"))]
+         let library = Library::load_program(&generated, monitor)?;
+         let state = library.create_embedded_state(initial_ticks.entries.len() as u32)?;
+         drop(generated);

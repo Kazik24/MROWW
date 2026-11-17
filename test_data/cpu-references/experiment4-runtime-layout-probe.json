@@ -1,0 +1,127 @@
+{
+  "scope": "separate untimed diagnostic process; seed and variants retained together; not sampled benchmark addresses",
+  "modules": [
+    {
+      "config": "seed",
+      "path": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-alignment-pm1-seed-strict-20261116\\mroww-native-cache\\61612159c933cb33ed8a2ce28653e38dbf1ba404e1061441263e5765603b9324-0\\engine.dll",
+      "loaded_path": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-alignment-pm1-seed-strict-20261116\\mroww-native-cache\\61612159c933cb33ed8a2ce28653e38dbf1ba404e1061441263e5765603b9324-0\\engine.dll",
+      "base": 140724339802112,
+      "tick_address": 140724339818672,
+      "tick_rva": 16560,
+      "text_sha256": "3e77baebaf44780c54efef731e110823ca7d77be98526b83792a7a5c9be98529",
+      "loaded_text_sha256": "3e77baebaf44780c54efef731e110823ca7d77be98526b83792a7a5c9be98529"
+    },
+    {
+      "config": "production",
+      "path": "F:\\rustrepos\\MCHPRS\\work\\alignment-search\\cache\\db455282b6cd839c63715fffe931762a6bab3c4d1be24c23e8a938e3862a9f72\\0-0-0-0\\engine.dll",
+      "loaded_path": "F:\\rustrepos\\MCHPRS\\work\\alignment-search\\cache\\db455282b6cd839c63715fffe931762a6bab3c4d1be24c23e8a938e3862a9f72\\0-0-0-0\\engine.dll",
+      "base": 140724094500864,
+      "tick_address": 140724094517424,
+      "tick_rva": 16560,
+      "text_sha256": "3e77baebaf44780c54efef731e110823ca7d77be98526b83792a7a5c9be98529",
+      "loaded_text_sha256": "3e77baebaf44780c54efef731e110823ca7d77be98526b83792a7a5c9be98529",
+      "helpers": {
+        "apply_movement_flip": {
+          "address": 140724094605888,
+          "modulo64": 0
+        },
+        "set_arranged": {
+          "address": 140724094596784,
+          "modulo64": 48
+        },
+        "execute_output": {
+          "address": 140724094518752,
+          "modulo64": 32
+        },
+        "drain": {
+          "address": 140724094586464,
+          "modulo64": 32
+        }
+      }
+    },
+    {
+      "config": "flip64",
+      "path": "F:\\rustrepos\\MCHPRS\\work\\alignment-search\\cache\\db455282b6cd839c63715fffe931762a6bab3c4d1be24c23e8a938e3862a9f72\\64-0-0-0\\engine.dll",
+      "loaded_path": "F:\\rustrepos\\MCHPRS\\work\\alignment-search\\cache\\db455282b6cd839c63715fffe931762a6bab3c4d1be24c23e8a938e3862a9f72\\64-0-0-0\\engine.dll",
+      "base": 140723778486272,
+      "tick_address": 140723778502832,
+      "tick_rva": 16560,
+      "text_sha256": "3e77baebaf44780c54efef731e110823ca7d77be98526b83792a7a5c9be98529",
+      "loaded_text_sha256": "3e77baebaf44780c54efef731e110823ca7d77be98526b83792a7a5c9be98529",
+      "helpers": {
+        "apply_movement_flip": {
+          "address": 140723778591296,
+          "modulo64": 0
+        },
+        "set_arranged": {
+          "address": 140723778582192,
+          "modulo64": 48
+        },
+        "execute_output": {
+          "address": 140723778504160,
+          "modulo64": 32
+        },
+        "drain": {
+          "address": 140723778571872,
+          "modulo64": 32
+        }
+      }
+    },
+    {
+      "config": "128-32-0-128",
+      "path": "F:\\rustrepos\\MCHPRS\\work\\alignment-search\\cache\\db455282b6cd839c63715fffe931762a6bab3c4d1be24c23e8a938e3862a9f72\\128-32-0-128\\engine.dll",
+      "loaded_path": "F:\\rustrepos\\MCHPRS\\work\\alignment-search\\cache\\db455282b6cd839c63715fffe931762a6bab3c4d1be24c23e8a938e3862a9f72\\128-32-0-128\\engine.dll",
+      "base": 140723533185024,
+      "tick_address": 140723533201584,
+      "tick_rva": 16560,
+      "text_sha256": "10b76d80de030495862d2de49499ba119d38d7facb3e91def1277f3de7e3a7be",
+      "loaded_text_sha256": "10b76d80de030495862d2de49499ba119d38d7facb3e91def1277f3de7e3a7be",
+      "helpers": {
+        "apply_movement_flip": {
+          "address": 140723533290112,
+          "modulo64": 0
+        },
+        "set_arranged": {
+          "address": 140723533280992,
+          "modulo64": 32
+        },
+        "execute_output": {
+          "address": 140723533202912,
+          "modulo64": 32
+        },
+        "drain": {
+          "address": 140723533270656,
+          "modulo64": 0
+        }
+      }
+    },
+    {
+      "config": "128-32-32-0",
+      "path": "F:\\rustrepos\\MCHPRS\\work\\alignment-search\\cache\\db455282b6cd839c63715fffe931762a6bab3c4d1be24c23e8a938e3862a9f72\\128-32-32-0\\engine.dll",
+      "loaded_path": "F:\\rustrepos\\MCHPRS\\work\\alignment-search\\cache\\db455282b6cd839c63715fffe931762a6bab3c4d1be24c23e8a938e3862a9f72\\128-32-32-0\\engine.dll",
+      "base": 140723287883776,
+      "tick_address": 140723287900336,
+      "tick_rva": 16560,
+      "text_sha256": "cadb6bb4565dcd31593ba2862aaa8cf431f45e4b2b64acf5cd448559472d8101",
+      "loaded_text_sha256": "cadb6bb4565dcd31593ba2862aaa8cf431f45e4b2b64acf5cd448559472d8101",
+      "helpers": {
+        "apply_movement_flip": {
+          "address": 140723287988864,
+          "modulo64": 0
+        },
+        "set_arranged": {
+          "address": 140723287979712,
+          "modulo64": 0
+        },
+        "execute_output": {
+          "address": 140723287901664,
+          "modulo64": 32
+        },
+        "drain": {
+          "address": 140723287969376,
+          "modulo64": 32
+        }
+      }
+    }
+  ]
+}

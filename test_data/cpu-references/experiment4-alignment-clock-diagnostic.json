@@ -1,0 +1,34 @@
+{
+  "lengths": [
+    3044022,
+    3044022
+  ],
+  "differences": [
+    [
+      3044018,
+      126,
+      160
+    ],
+    [
+      3044019,
+      27924,
+      35471
+    ]
+  ],
+  "classification": "invalid comparison: distinct real wall-clock inputs; no performance interpretation",
+  "fields": [
+    "command_output.output_count",
+    "command_output.output_bytes"
+  ],
+  "unchanged_words": 3044020,
+  "failed_sample": 2,
+  "variant": "flip64 vs production, strict PM1, 5000 ticks",
+  "resolution": "Existing benchmark_tick_batch(0,0) before Start: fixed command clock, zero tick advancement, unlimited output; retain all counters in full equality",
+  "failed_log_sha256": "2b8aa697cbba180b13cae14babfef2af88cec554fa83d649e6a563bf9bfdb199",
+  "partial_results": {
+    "path": "experiment4-clock-invalid-raw.json.gz",
+    "sha256": "08647ad4ef06aee136d6eb0025b6c2908ba0d68066490583c6afdd450d25831c",
+    "performance_usable": false
+  },
+  "performance_usable": false
+}

@@ -9,6 +9,14 @@ fn invalid() -> ScratchError {
 }
 
 impl LlvmRuntime {
+    pub(in crate::redpilator) fn benchmark_addresses(&self) -> [usize; 3] {
+        [self.library.tick as usize, self.state.as_ptr() as usize, self.state.len() * 8]
+    }
+
+    pub(in crate::redpilator) fn benchmark_movement_profile(&self, reset: bool) -> Option<Vec<u64>> {
+        self.library.movement_profile(reset)
+    }
+
     /// Count zero performs allocation and clock setup outside the measured interval.
     pub(in crate::redpilator) fn benchmark_tick_batch(&mut self, count: u32, mode: u32) -> Result<(), ScratchError> {
         if mode > 3 || (mode == 3 && count > 32) {

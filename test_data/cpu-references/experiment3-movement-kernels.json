@@ -1,0 +1,2263 @@
+{
+  "decision": "reject production adoption of the bounded dispatcher; retain prototype and measurements",
+  "reason": "increment over alignment-only median 1.46% below 3% gate; relaxed median -3.18%",
+  "revision": "7347a517f9af04e2dad8037f870460de7cd7fa2d",
+  "fixture": {
+    "path": "test_data/ZCore12B_FIX.schem",
+    "sha256": "7f074b967a043f36915f5980cbd4da54f62e45832cc385c1ce53fb21dbe9bac8"
+  },
+  "conditions": {
+    "affinity_mask": 256,
+    "preparation_ticks": 413,
+    "publication": "redstone",
+    "publication_calls_in_timing": 0,
+    "overlapping_builds_tests_census_in_paired_timings": false,
+    "runner_sha256": "0a9fe95c168796865ad117ce2a1c2b6f988fa2124fb4eb2d661be7af4c3b1960",
+    "machine": "Windows / AMD Ryzen 9 5950X / 16 cores / 32 logical processors",
+    "peak_compiler_memory_bytes": null
+  },
+  "tools": {
+    "C:\\Program Files\\Unity\\Hub\\Editor\\6000.6.0f1\\Editor\\Data\\PlaybackEngines\\WebGLSupport\\BuildTools\\Emscripten\\llvm\\clang.exe": {
+      "sha256": "ddcb47eb6f9629b44d233030ebe0dccfa56e8df769340c3e17363e6e4222194e",
+      "version": "clang version 22.0.0git (https://github-com-cache.bf.unity3d.com/Unity-Technologies/llvm-project e5071069e879dbf97a239cda009f8a3e3a4a7365)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: C:\\Program Files\\Unity\\Hub\\Editor\\6000.6.0f1\\Editor\\Data\\PlaybackEngines\\WebGLSupport\\BuildTools\\Emscripten\\llvm\n"
+    },
+    "C:\\Users\\Maciej\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\bin\\gcc-ld\\lld-link.exe": {
+      "sha256": "e06f802da0559979bf9fcf5a37dfd6a70c27efafd606cda355eb6d04d11188ab",
+      "version": "LLD 22.1.8 (https://github.com/rust-lang/llvm-project.git 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)\n"
+    }
+  },
+  "bounds": {
+    "max_kernels": 16,
+    "max_flips_total": 256,
+    "max_flips_per_range": 32,
+    "max_native_text_growth_bytes": 32768,
+    "profile_slots": 131072,
+    "profile_global_buffer_bytes": 4194304
+  },
+  "profiles": {
+    "strict": {
+      "raw_file": "experiment3-profile-strict.json",
+      "raw_sha256": "f728ba9d16831e4196760aff82cd58b594c15776a51cef1defcd8c87fe7d492a",
+      "overflow": 0,
+      "zero_graph_ranges": 0,
+      "zero_canonical_ranges": 430428,
+      "scalar_fallback_flips": 9150111,
+      "unique_nonempty_ranges": 5538,
+      "guarded_calls": 887717,
+      "guarded_physical_flips": 4468488,
+      "selected_physical_flips": 170409,
+      "selected_tsc_fraction": 0.030805468000820912
+    },
+    "relaxed": {
+      "raw_file": "experiment3-profile-relaxed.json",
+      "raw_sha256": "4534dd1528092745d9cd3f205e98606e0521791b791f53ea88d4592b4bf27b1a",
+      "overflow": 0,
+      "zero_graph_ranges": 4596800,
+      "zero_canonical_ranges": 0,
+      "scalar_fallback_flips": 0,
+      "unique_nonempty_ranges": 24730,
+      "guarded_calls": 3425234,
+      "guarded_physical_flips": 8805320,
+      "selected_physical_flips": 113996,
+      "selected_tsc_fraction": 0.00836924962981377
+    },
+    "strict_long": {
+      "raw_file": "experiment3-profile-strict_long.json",
+      "raw_sha256": "d5ee90e0f3b78d5a3d047f401b735aeb9801b6bd30ffb22005ab986b81945224",
+      "overflow": 0,
+      "zero_graph_ranges": 0,
+      "zero_canonical_ranges": 4572672,
+      "scalar_fallback_flips": 93706546,
+      "unique_nonempty_ranges": 5680,
+      "guarded_calls": 9150995,
+      "guarded_physical_flips": 46322331,
+      "selected_physical_flips": 1707487,
+      "selected_tsc_fraction": 0.027550329297422533
+    }
+  },
+  "artifacts": {
+    "baseline-strict": {
+      "mode": "baseline",
+      "seed": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-movement-seed-strict\\mroww-native-cache\\6c7f5da62d8d0d65159736c5bb2fc1fe616d025719fda12bdb3f1ebdfbd18503-0",
+      "flags": [
+        "-std=c23",
+        "-O3",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-Werror",
+        "-DMCHPRS_EMBEDDED_PROGRAM=1",
+        "--target=x86_64-pc-windows-msvc"
+      ],
+      "clang": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+      "linker": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+      "build_ms": 4490.700899999865,
+      "selected": [],
+      "selected_flips": 0,
+      "profile_physical_flips": 0,
+      "selected_physical_flips": 0,
+      "profile_cycles": 0,
+      "selected_cycles": 0,
+      "module_bytes": 109824000,
+      "text_bytes": 111792,
+      "seed_text_bytes": 111792,
+      "text_growth_budget": 32768,
+      "source_sha256": "60e16eb51f56e05b97ca1ec704bd72eb5cd649fa439d5dee29681c1735fe516e",
+      "program_sha256": "cd18ea8605c97c1823f3597daf98d50e688905590c836be20450de5843896853",
+      "kernel_source_sha256": "c41a26e3a1e982be2aa47fa9690bba0d8d08bb34ae9d1b64a155911eb3fe263a",
+      "dll_sha256": "82f5492eaadb8cae20e4af8e9b7384fc2acaf0a732e1198c1b25dd73191f3615",
+      "program_header_sha256": "743efa45d405a043de5e343a9ec04a98afc527d057b9e7934b53e9bfb25c901a",
+      "original_native_sources": {
+        "engine.c": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+        "abi.h": "95d6e4b1a86e87c5409af3de9cf15c2cda1f6a35b5cd80ba6f0635f833f5be76",
+        "command_engine.c": "413a0802550bce9ed59880abc3ea71fedf15ebc438337f6a39248f0cb7344cc4"
+      }
+    },
+    "specialized-strict": {
+      "mode": "specialize",
+      "seed": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-movement-seed-strict\\mroww-native-cache\\6c7f5da62d8d0d65159736c5bb2fc1fe616d025719fda12bdb3f1ebdfbd18503-0",
+      "flags": [
+        "-std=c23",
+        "-O3",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-Werror",
+        "-DMCHPRS_EMBEDDED_PROGRAM=1",
+        "--target=x86_64-pc-windows-msvc"
+      ],
+      "clang": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+      "linker": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+      "build_ms": 4587.076099999649,
+      "selected": [
+        [
+          2,
+          2139862,
+          30,
+          787,
+          648958
+        ],
+        [
+          2,
+          2157344,
+          19,
+          833,
+          644402
+        ],
+        [
+          2,
+          2139892,
+          30,
+          786,
+          625804
+        ],
+        [
+          2,
+          2157363,
+          19,
+          832,
+          621452
+        ],
+        [
+          2,
+          2148148,
+          14,
+          418,
+          529312
+        ],
+        [
+          2,
+          2136766,
+          17,
+          625,
+          501296
+        ],
+        [
+          2,
+          2141408,
+          16,
+          833,
+          497454
+        ],
+        [
+          2,
+          2141424,
+          16,
+          832,
+          492626
+        ],
+        [
+          2,
+          2139682,
+          30,
+          411,
+          486710
+        ],
+        [
+          2,
+          2127638,
+          28,
+          515,
+          483276
+        ],
+        [
+          2,
+          2140542,
+          26,
+          515,
+          482494
+        ],
+        [
+          2,
+          2135062,
+          7,
+          833,
+          312324
+        ],
+        [
+          2,
+          2141986,
+          3,
+          832,
+          252348
+        ]
+      ],
+      "selected_flips": 255,
+      "profile_physical_flips": 4468488,
+      "selected_physical_flips": 170409,
+      "profile_cycles": 213548322,
+      "selected_cycles": 6578456,
+      "module_bytes": 109837824,
+      "text_bytes": 120911,
+      "seed_text_bytes": 111792,
+      "text_growth_budget": 32768,
+      "source_sha256": "60e16eb51f56e05b97ca1ec704bd72eb5cd649fa439d5dee29681c1735fe516e",
+      "program_sha256": "cd18ea8605c97c1823f3597daf98d50e688905590c836be20450de5843896853",
+      "kernel_source_sha256": "4e7b6fe1f0753f534ada8fb1d79c3c8a488f14a4ea44d9ca45067c200b17c920",
+      "dll_sha256": "72abc49fe96d3050db86b4bcea9e496ed8c0656f1071f70b978bca571a31eb7b",
+      "program_header_sha256": "743efa45d405a043de5e343a9ec04a98afc527d057b9e7934b53e9bfb25c901a",
+      "original_native_sources": {
+        "engine.c": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+        "abi.h": "95d6e4b1a86e87c5409af3de9cf15c2cda1f6a35b5cd80ba6f0635f833f5be76",
+        "command_engine.c": "413a0802550bce9ed59880abc3ea71fedf15ebc438337f6a39248f0cb7344cc4"
+      }
+    },
+    "baseline-relaxed-v2": {
+      "mode": "baseline",
+      "seed": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-movement-seed-relaxed\\mroww-native-cache\\c949d1d2b949185622a3b578c6378e2f132a45b43aadd9102638f16f593a4374-0",
+      "flags": [
+        "-std=c23",
+        "-O3",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-Werror",
+        "-DMCHPRS_EMBEDDED_PROGRAM=1",
+        "--target=x86_64-pc-windows-msvc"
+      ],
+      "clang": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+      "linker": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+      "build_ms": 5542.093000000023,
+      "selected": [],
+      "selected_flips": 0,
+      "profile_physical_flips": 0,
+      "selected_physical_flips": 0,
+      "profile_cycles": 0,
+      "selected_cycles": 0,
+      "module_bytes": 155114496,
+      "text_bytes": 112288,
+      "seed_text_bytes": 112288,
+      "text_growth_budget": 32768,
+      "source_sha256": "60e16eb51f56e05b97ca1ec704bd72eb5cd649fa439d5dee29681c1735fe516e",
+      "program_sha256": "b20cf4d3899ff380fc5317de4fc7af988b5073895b8787453fe7d7acdd6a4009",
+      "kernel_source_sha256": "c41a26e3a1e982be2aa47fa9690bba0d8d08bb34ae9d1b64a155911eb3fe263a",
+      "dll_sha256": "c3bcf54d2793f9133625b32f9a88eab028a55e86c010f769548c84a4b21c207f",
+      "program_header_sha256": "8ef474d2129c220402866d0d2a40b6b4c7a0fc990b6cb55744bea88973ecfe99",
+      "original_native_sources": {
+        "engine.c": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+        "abi.h": "95d6e4b1a86e87c5409af3de9cf15c2cda1f6a35b5cd80ba6f0635f833f5be76",
+        "command_engine.c": "413a0802550bce9ed59880abc3ea71fedf15ebc438337f6a39248f0cb7344cc4"
+      }
+    },
+    "specialized-relaxed-v2": {
+      "mode": "specialize",
+      "seed": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-movement-seed-relaxed\\mroww-native-cache\\c949d1d2b949185622a3b578c6378e2f132a45b43aadd9102638f16f593a4374-0",
+      "flags": [
+        "-std=c23",
+        "-O3",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-Werror",
+        "-DMCHPRS_EMBEDDED_PROGRAM=1",
+        "--target=x86_64-pc-windows-msvc"
+      ],
+      "clang": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+      "linker": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+      "build_ms": 5611.394599999585,
+      "selected": [
+        [
+          1,
+          351396,
+          8,
+          832,
+          452778
+        ],
+        [
+          1,
+          241276,
+          8,
+          787,
+          450806
+        ],
+        [
+          1,
+          351388,
+          8,
+          833,
+          430916
+        ],
+        [
+          1,
+          698910,
+          11,
+          833,
+          422620
+        ],
+        [
+          1,
+          364310,
+          20,
+          338,
+          396780
+        ],
+        [
+          1,
+          1598178,
+          10,
+          833,
+          387532
+        ],
+        [
+          1,
+          1598188,
+          10,
+          832,
+          376890
+        ],
+        [
+          1,
+          230652,
+          7,
+          787,
+          357272
+        ],
+        [
+          1,
+          236376,
+          7,
+          787,
+          356116
+        ],
+        [
+          1,
+          479626,
+          7,
+          719,
+          351934
+        ],
+        [
+          1,
+          1578136,
+          9,
+          833,
+          349112
+        ],
+        [
+          1,
+          228844,
+          8,
+          787,
+          347276
+        ],
+        [
+          1,
+          364330,
+          20,
+          338,
+          342754
+        ],
+        [
+          1,
+          227092,
+          8,
+          787,
+          340340
+        ],
+        [
+          1,
+          364576,
+          19,
+          601,
+          339694
+        ],
+        [
+          1,
+          1578145,
+          9,
+          832,
+          337654
+        ]
+      ],
+      "selected_flips": 169,
+      "profile_physical_flips": 8805320,
+      "selected_physical_flips": 113996,
+      "profile_cycles": 721746186,
+      "selected_cycles": 6040474,
+      "module_bytes": 155134976,
+      "text_bytes": 132102,
+      "seed_text_bytes": 112288,
+      "text_growth_budget": 32768,
+      "source_sha256": "60e16eb51f56e05b97ca1ec704bd72eb5cd649fa439d5dee29681c1735fe516e",
+      "program_sha256": "b20cf4d3899ff380fc5317de4fc7af988b5073895b8787453fe7d7acdd6a4009",
+      "kernel_source_sha256": "f9749128ed2da82fee6a0228e59ecb7f6bcae5509a0256ef44429b70220ccd87",
+      "dll_sha256": "caae0b57e13e00bc209d6c4f8cc5f8956a7935673b6680732f47ef6627dfeb0e",
+      "program_header_sha256": "8ef474d2129c220402866d0d2a40b6b4c7a0fc990b6cb55744bea88973ecfe99",
+      "original_native_sources": {
+        "engine.c": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+        "abi.h": "95d6e4b1a86e87c5409af3de9cf15c2cda1f6a35b5cd80ba6f0635f833f5be76",
+        "command_engine.c": "413a0802550bce9ed59880abc3ea71fedf15ebc438337f6a39248f0cb7344cc4"
+      }
+    },
+    "layout-strict": {
+      "mode": "layout",
+      "seed": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-movement-seed-strict\\mroww-native-cache\\6c7f5da62d8d0d65159736c5bb2fc1fe616d025719fda12bdb3f1ebdfbd18503-0",
+      "flags": [
+        "-std=c23",
+        "-O3",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-Werror",
+        "-DMCHPRS_EMBEDDED_PROGRAM=1",
+        "--target=x86_64-pc-windows-msvc"
+      ],
+      "clang": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+      "linker": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+      "build_ms": 7320.187700000133,
+      "selected": [
+        [
+          2,
+          2139862,
+          30,
+          787,
+          648958
+        ],
+        [
+          2,
+          2157344,
+          19,
+          833,
+          644402
+        ],
+        [
+          2,
+          2139892,
+          30,
+          786,
+          625804
+        ],
+        [
+          2,
+          2157363,
+          19,
+          832,
+          621452
+        ],
+        [
+          2,
+          2148148,
+          14,
+          418,
+          529312
+        ],
+        [
+          2,
+          2136766,
+          17,
+          625,
+          501296
+        ],
+        [
+          2,
+          2141408,
+          16,
+          833,
+          497454
+        ],
+        [
+          2,
+          2141424,
+          16,
+          832,
+          492626
+        ],
+        [
+          2,
+          2139682,
+          30,
+          411,
+          486710
+        ],
+        [
+          2,
+          2127638,
+          28,
+          515,
+          483276
+        ],
+        [
+          2,
+          2140542,
+          26,
+          515,
+          482494
+        ],
+        [
+          2,
+          2135062,
+          7,
+          833,
+          312324
+        ],
+        [
+          2,
+          2141986,
+          3,
+          832,
+          252348
+        ]
+      ],
+      "selected_flips": 255,
+      "profile_physical_flips": 4468488,
+      "selected_physical_flips": 170409,
+      "profile_cycles": 213548322,
+      "selected_cycles": 6578456,
+      "module_bytes": 109836288,
+      "text_bytes": 120320,
+      "seed_text_bytes": 111792,
+      "text_growth_budget": 32768,
+      "source_sha256": "60e16eb51f56e05b97ca1ec704bd72eb5cd649fa439d5dee29681c1735fe516e",
+      "program_sha256": "cd18ea8605c97c1823f3597daf98d50e688905590c836be20450de5843896853",
+      "kernel_source_sha256": "c870bafd06fcc68afcfdb611cec80c8e1b9c0ae2668037314cf4d4ea0763522e",
+      "script_sha256": "fe6449941887ae1c89a870766527b49affa22d543498de7f1101e5834713f439",
+      "total_build_ms": 8185.421199999837,
+      "dll_sha256": "52ea2d223f97e95a6b0302eab884d47e08816a123acfde7e8e6ad64dcdb4afcf",
+      "program_header_sha256": "743efa45d405a043de5e343a9ec04a98afc527d057b9e7934b53e9bfb25c901a",
+      "original_native_sources": {
+        "engine.c": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+        "abi.h": "95d6e4b1a86e87c5409af3de9cf15c2cda1f6a35b5cd80ba6f0635f833f5be76",
+        "command_engine.c": "413a0802550bce9ed59880abc3ea71fedf15ebc438337f6a39248f0cb7344cc4"
+      }
+    },
+    "align-strict": {
+      "mode": "align",
+      "seed": "F:\\rustrepos\\MCHPRS\\work\\redpilator-next\\llvm-movement-seed-strict\\mroww-native-cache\\6c7f5da62d8d0d65159736c5bb2fc1fe616d025719fda12bdb3f1ebdfbd18503-0",
+      "flags": [
+        "-std=c23",
+        "-O3",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-Werror",
+        "-DMCHPRS_EMBEDDED_PROGRAM=1",
+        "--target=x86_64-pc-windows-msvc"
+      ],
+      "clang": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+      "linker": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+      "build_ms": 5043.849499999851,
+      "selected": [],
+      "selected_flips": 0,
+      "profile_physical_flips": 0,
+      "selected_physical_flips": 0,
+      "profile_cycles": 0,
+      "selected_cycles": 0,
+      "module_bytes": 109824000,
+      "text_bytes": 111808,
+      "seed_text_bytes": 111792,
+      "text_growth_budget": 32768,
+      "source_sha256": "07b13ee5df24fcef205da3ad233325481271c645e21db2f156ae8211766afb9d",
+      "program_sha256": "cd18ea8605c97c1823f3597daf98d50e688905590c836be20450de5843896853",
+      "kernel_source_sha256": "c41a26e3a1e982be2aa47fa9690bba0d8d08bb34ae9d1b64a155911eb3fe263a",
+      "guard_target": null,
+      "script_sha256": "7639d7e37e57808798bb3144b47a7e50bd5511a26b33a6e827e446bebc46bf6a",
+      "total_build_ms": 5169.231800000489,
+      "dll_sha256": "c041bf64e52efc500e1d6767d6849cb606e695939dc3efdbf57fd1df1d11a251",
+      "program_header_sha256": "743efa45d405a043de5e343a9ec04a98afc527d057b9e7934b53e9bfb25c901a",
+      "original_native_sources": {
+        "engine.c": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+        "abi.h": "95d6e4b1a86e87c5409af3de9cf15c2cda1f6a35b5cd80ba6f0635f833f5be76",
+        "command_engine.c": "413a0802550bce9ed59880abc3ea71fedf15ebc438337f6a39248f0cb7344cc4"
+      }
+    }
+  },
+  "series": {
+    "pair": {
+      "baseline": "baseline",
+      "candidate": "specialized",
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 14225.9186,
+            "cpu": "zcore",
+            "elapsed_ms": 759.8819,
+            "flush_every": 0,
+            "kernel_ms": 759.8819,
+            "kernel_tps": 6579.9698611060485,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6579.9698611060485
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 14162.5388,
+            "cpu": "zcore",
+            "elapsed_ms": 799.3249,
+            "flush_every": 0,
+            "kernel_ms": 799.3249,
+            "kernel_tps": 6255.278673290423,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6255.278673290423
+          },
+          "throughput_change_pct": -4.93453913421188
+        },
+        {
+          "pair": 2,
+          "order": [
+            "specialized",
+            "baseline"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 14097.8383,
+            "cpu": "zcore",
+            "elapsed_ms": 781.5980999999999,
+            "flush_every": 0,
+            "kernel_ms": 781.5980999999999,
+            "kernel_tps": 6397.149634831508,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6397.149634831508
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 14152.0192,
+            "cpu": "zcore",
+            "elapsed_ms": 776.1542999999999,
+            "flush_every": 0,
+            "kernel_ms": 776.1542999999999,
+            "kernel_tps": 6442.018036877462,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6442.018036877462
+          },
+          "throughput_change_pct": 0.7013811557830874
+        },
+        {
+          "pair": 3,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 14026.1053,
+            "cpu": "zcore",
+            "elapsed_ms": 772.7454,
+            "flush_every": 0,
+            "kernel_ms": 772.7454,
+            "kernel_tps": 6470.436446467362,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6470.436446467362
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 14154.8061,
+            "cpu": "zcore",
+            "elapsed_ms": 798.1135,
+            "flush_every": 0,
+            "kernel_ms": 798.1135,
+            "kernel_tps": 6264.773118109141,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6264.773118109141
+          },
+          "throughput_change_pct": -3.178507818750087
+        },
+        {
+          "pair": 4,
+          "order": [
+            "specialized",
+            "baseline"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 14079.9725,
+            "cpu": "zcore",
+            "elapsed_ms": 758.1384,
+            "flush_every": 0,
+            "kernel_ms": 758.1384,
+            "kernel_tps": 6595.101896962349,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6595.101896962349
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 14120.0353,
+            "cpu": "zcore",
+            "elapsed_ms": 775.0364,
+            "flush_every": 0,
+            "kernel_ms": 775.0364,
+            "kernel_tps": 6451.309899767289,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6451.309899767289
+          },
+          "throughput_change_pct": -2.180284693725354
+        },
+        {
+          "pair": 5,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 14188.1343,
+            "cpu": "zcore",
+            "elapsed_ms": 756.0698,
+            "flush_every": 0,
+            "kernel_ms": 756.0698,
+            "kernel_tps": 6613.146034929579,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6613.146034929579
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 14161.5447,
+            "cpu": "zcore",
+            "elapsed_ms": 781.1648,
+            "flush_every": 0,
+            "kernel_ms": 781.1648,
+            "kernel_tps": 6400.698034524853,
+            "messages": 0,
+            "native_state_sha256": "db39b8b7ed649a8661971f10a736aadce03fc021fb3d3f3888bdc85868aab323",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": true,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 6400.698034524853
+          },
+          "throughput_change_pct": -3.21251034352803
+        }
+      ],
+      "median_change_pct": -3.178507818750087,
+      "minimum_pct": -4.93453913421188,
+      "maximum_pct": 0.7013811557830874
+    },
+    "strict-pair": {
+      "baseline": "baseline",
+      "candidate": "specialized",
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13434.1976,
+            "cpu": "zcore",
+            "elapsed_ms": 1057.1263,
+            "flush_every": 0,
+            "kernel_ms": 1057.1263,
+            "kernel_tps": 4729.803808683977,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4729.803808683977
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13374.153,
+            "cpu": "zcore",
+            "elapsed_ms": 1081.1708,
+            "flush_every": 0,
+            "kernel_ms": 1081.1708,
+            "kernel_tps": 4624.616203101305,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4624.616203101305
+          },
+          "throughput_change_pct": -2.223931685909397
+        },
+        {
+          "pair": 2,
+          "order": [
+            "specialized",
+            "baseline"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13426.8528,
+            "cpu": "zcore",
+            "elapsed_ms": 1099.7877,
+            "flush_every": 0,
+            "kernel_ms": 1099.7877,
+            "kernel_tps": 4546.331987528139,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4546.331987528139
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13385.805400000001,
+            "cpu": "zcore",
+            "elapsed_ms": 1053.8215,
+            "flush_every": 0,
+            "kernel_ms": 1053.8215,
+            "kernel_tps": 4744.636544234484,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4744.636544234484
+          },
+          "throughput_change_pct": 4.361858246391814
+        },
+        {
+          "pair": 3,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13393.845000000001,
+            "cpu": "zcore",
+            "elapsed_ms": 1097.7497999999998,
+            "flush_every": 0,
+            "kernel_ms": 1097.7497999999998,
+            "kernel_tps": 4554.771952588832,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4554.771952588832
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13480.491,
+            "cpu": "zcore",
+            "elapsed_ms": 1065.5053,
+            "flush_every": 0,
+            "kernel_ms": 1065.5053,
+            "kernel_tps": 4692.609224937689,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4692.609224937689
+          },
+          "throughput_change_pct": 3.0262167630700443
+        },
+        {
+          "pair": 4,
+          "order": [
+            "specialized",
+            "baseline"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13509.538299999998,
+            "cpu": "zcore",
+            "elapsed_ms": 1144.0415,
+            "flush_every": 0,
+            "kernel_ms": 1144.0415,
+            "kernel_tps": 4370.470826451663,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4370.470826451663
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13465.519900000001,
+            "cpu": "zcore",
+            "elapsed_ms": 1053.8015,
+            "flush_every": 0,
+            "kernel_ms": 1053.8015,
+            "kernel_tps": 4744.726592247212,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4744.726592247212
+          },
+          "throughput_change_pct": 8.563282553687767
+        },
+        {
+          "pair": 5,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13405.7396,
+            "cpu": "zcore",
+            "elapsed_ms": 1071.1593,
+            "flush_every": 0,
+            "kernel_ms": 1071.1593,
+            "kernel_tps": 4667.839788162228,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4667.839788162228
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13425.3019,
+            "cpu": "zcore",
+            "elapsed_ms": 1079.7807,
+            "flush_every": 0,
+            "kernel_ms": 1079.7807,
+            "kernel_tps": 4630.569892571705,
+            "messages": 0,
+            "native_state_sha256": "ff4e5f557c471efde6ab49400a133c6430c6391ed8af991672a8aefceb4c795a",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "563a79fbd276a5b3601a404c3b7f278fe302f171960d5a6ed294c34219c7175b",
+            "ticks": 5000,
+            "tps": 4630.569892571705
+          },
+          "throughput_change_pct": -0.7984399054363434
+        }
+      ],
+      "median_change_pct": 3.0262167630700443,
+      "minimum_pct": -2.223931685909397,
+      "maximum_pct": 8.563282553687767
+    },
+    "strict-long-pair": {
+      "baseline": "baseline",
+      "candidate": "specialized",
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13490.1982,
+            "cpu": "zcore",
+            "elapsed_ms": 12498.752,
+            "flush_every": 0,
+            "kernel_ms": 12498.752,
+            "kernel_tps": 4000.399399876084,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4000.399399876084
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13443.9575,
+            "cpu": "zcore",
+            "elapsed_ms": 11438.7995,
+            "flush_every": 0,
+            "kernel_ms": 11438.7995,
+            "kernel_tps": 4371.088067414767,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4371.088067414767
+          },
+          "throughput_change_pct": 9.266291449552888
+        },
+        {
+          "pair": 2,
+          "order": [
+            "specialized",
+            "baseline"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13350.8177,
+            "cpu": "zcore",
+            "elapsed_ms": 12352.016300000001,
+            "flush_every": 0,
+            "kernel_ms": 12352.016300000001,
+            "kernel_tps": 4047.922119403291,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4047.922119403291
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13346.003400000001,
+            "cpu": "zcore",
+            "elapsed_ms": 11229.1532,
+            "flush_every": 0,
+            "kernel_ms": 11229.1532,
+            "kernel_tps": 4452.695506906077,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4452.695506906077
+          },
+          "throughput_change_pct": 9.999534960481249
+        },
+        {
+          "pair": 3,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13337.5626,
+            "cpu": "zcore",
+            "elapsed_ms": 11949.991,
+            "flush_every": 0,
+            "kernel_ms": 11949.991,
+            "kernel_tps": 4184.1035696177505,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4184.1035696177505
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13423.905400000001,
+            "cpu": "zcore",
+            "elapsed_ms": 11294.3527,
+            "flush_every": 0,
+            "kernel_ms": 11294.3527,
+            "kernel_tps": 4426.991198884732,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4426.991198884732
+          },
+          "throughput_change_pct": 5.805009967503527
+        },
+        {
+          "pair": 4,
+          "order": [
+            "specialized",
+            "baseline"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13345.5363,
+            "cpu": "zcore",
+            "elapsed_ms": 11946.8743,
+            "flush_every": 0,
+            "kernel_ms": 11946.8743,
+            "kernel_tps": 4185.1951183582805,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4185.1951183582805
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13406.475999999999,
+            "cpu": "zcore",
+            "elapsed_ms": 11300.134999999998,
+            "flush_every": 0,
+            "kernel_ms": 11300.134999999998,
+            "kernel_tps": 4424.725899292354,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4424.725899292354
+          },
+          "throughput_change_pct": 5.723288261600423
+        },
+        {
+          "pair": 5,
+          "order": [
+            "baseline",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13345.673400000001,
+            "cpu": "zcore",
+            "elapsed_ms": 11894.872299999999,
+            "flush_every": 0,
+            "kernel_ms": 11894.872299999999,
+            "kernel_tps": 4203.4919534192895,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4203.4919534192895
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13410.0039,
+            "cpu": "zcore",
+            "elapsed_ms": 11786.3255,
+            "flush_every": 0,
+            "kernel_ms": 11786.3255,
+            "kernel_tps": 4242.204239141368,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4242.204239141368
+          },
+          "throughput_change_pct": 0.920955390210465
+        }
+      ],
+      "median_change_pct": 5.805009967503527,
+      "minimum_pct": 0.920955390210465,
+      "maximum_pct": 9.999534960481249
+    },
+    "layout-pair": {
+      "baseline": "layout",
+      "candidate": "specialized",
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "layout",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13402.267,
+            "cpu": "zcore",
+            "elapsed_ms": 10970.9102,
+            "flush_every": 0,
+            "kernel_ms": 10970.9102,
+            "kernel_tps": 4557.506997003767,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4557.506997003767
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13220.071,
+            "cpu": "zcore",
+            "elapsed_ms": 10862.527699999999,
+            "flush_every": 0,
+            "kernel_ms": 10862.527699999999,
+            "kernel_tps": 4602.980206899726,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4602.980206899726
+          },
+          "throughput_change_pct": 0.9977650045486453
+        },
+        {
+          "pair": 2,
+          "order": [
+            "specialized",
+            "layout"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13313.778900000001,
+            "cpu": "zcore",
+            "elapsed_ms": 11759.7746,
+            "flush_every": 0,
+            "kernel_ms": 11759.7746,
+            "kernel_tps": 4251.782172763754,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4251.782172763754
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13301.086399999998,
+            "cpu": "zcore",
+            "elapsed_ms": 10864.6823,
+            "flush_every": 0,
+            "kernel_ms": 10864.6823,
+            "kernel_tps": 4602.067379365524,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4602.067379365524
+          },
+          "throughput_change_pct": 8.238550150702494
+        },
+        {
+          "pair": 3,
+          "order": [
+            "layout",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13390.0444,
+            "cpu": "zcore",
+            "elapsed_ms": 11271.6087,
+            "flush_every": 0,
+            "kernel_ms": 11271.6087,
+            "kernel_tps": 4435.924039840028,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4435.924039840028
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13357.4514,
+            "cpu": "zcore",
+            "elapsed_ms": 11423.5245,
+            "flush_every": 0,
+            "kernel_ms": 11423.5245,
+            "kernel_tps": 4376.932880916043,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4376.932880916043
+          },
+          "throughput_change_pct": -1.3298505203013344
+        },
+        {
+          "pair": 4,
+          "order": [
+            "specialized",
+            "layout"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13315.3791,
+            "cpu": "zcore",
+            "elapsed_ms": 11346.9791,
+            "flush_every": 0,
+            "kernel_ms": 11346.9791,
+            "kernel_tps": 4406.459160570764,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4406.459160570764
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13225.1269,
+            "cpu": "zcore",
+            "elapsed_ms": 10849.4234,
+            "flush_every": 0,
+            "kernel_ms": 10849.4234,
+            "kernel_tps": 4608.539841850029,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4608.539841850029
+          },
+          "throughput_change_pct": 4.586010533979179
+        },
+        {
+          "pair": 5,
+          "order": [
+            "layout",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13257.6201,
+            "cpu": "zcore",
+            "elapsed_ms": 11431.8506,
+            "flush_every": 0,
+            "kernel_ms": 11431.8506,
+            "kernel_tps": 4373.745052266516,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4373.745052266516
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13278.0045,
+            "cpu": "zcore",
+            "elapsed_ms": 10938.7803,
+            "flush_every": 0,
+            "kernel_ms": 10938.7803,
+            "kernel_tps": 4570.8935209165875,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4570.8935209165875
+          },
+          "throughput_change_pct": 4.507543679252812
+        }
+      ],
+      "median_change_pct": 4.507543679252812,
+      "minimum_pct": -1.3298505203013344,
+      "maximum_pct": 8.238550150702494
+    },
+    "align-pair": {
+      "baseline": "baseline",
+      "candidate": "align",
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "baseline",
+            "align"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13422.6761,
+            "cpu": "zcore",
+            "elapsed_ms": 11901.1337,
+            "flush_every": 0,
+            "kernel_ms": 11901.1337,
+            "kernel_tps": 4201.280420872845,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4201.280420872845
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13449.4073,
+            "cpu": "zcore",
+            "elapsed_ms": 11340.5389,
+            "flush_every": 0,
+            "kernel_ms": 11340.5389,
+            "kernel_tps": 4408.961552964648,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4408.961552964648
+          },
+          "throughput_change_pct": 4.943281839983826
+        },
+        {
+          "pair": 2,
+          "order": [
+            "align",
+            "baseline"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13488.9835,
+            "cpu": "zcore",
+            "elapsed_ms": 11941.6611,
+            "flush_every": 0,
+            "kernel_ms": 11941.6611,
+            "kernel_tps": 4187.022189065473,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4187.022189065473
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13475.8621,
+            "cpu": "zcore",
+            "elapsed_ms": 12171.4686,
+            "flush_every": 0,
+            "kernel_ms": 12171.4686,
+            "kernel_tps": 4107.967710650792,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4107.967710650792
+          },
+          "throughput_change_pct": -1.8880835793307793
+        },
+        {
+          "pair": 3,
+          "order": [
+            "baseline",
+            "align"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13359.5023,
+            "cpu": "zcore",
+            "elapsed_ms": 11458.4422,
+            "flush_every": 0,
+            "kernel_ms": 11458.4422,
+            "kernel_tps": 4363.594904724483,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4363.594904724483
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13368.7267,
+            "cpu": "zcore",
+            "elapsed_ms": 10897.0923,
+            "flush_every": 0,
+            "kernel_ms": 10897.0923,
+            "kernel_tps": 4588.379966277793,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4588.379966277793
+          },
+          "throughput_change_pct": 5.151373270464088
+        },
+        {
+          "pair": 4,
+          "order": [
+            "align",
+            "baseline"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13389.5813,
+            "cpu": "zcore",
+            "elapsed_ms": 11584.6541,
+            "flush_every": 0,
+            "kernel_ms": 11584.6541,
+            "kernel_tps": 4316.054632999358,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4316.054632999358
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13287.6657,
+            "cpu": "zcore",
+            "elapsed_ms": 11125.2464,
+            "flush_every": 0,
+            "kernel_ms": 11125.2464,
+            "kernel_tps": 4494.2824816895745,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4494.2824816895745
+          },
+          "throughput_change_pct": 4.129415956126592
+        },
+        {
+          "pair": 5,
+          "order": [
+            "baseline",
+            "align"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13321.380700000002,
+            "cpu": "zcore",
+            "elapsed_ms": 11358.0521,
+            "flush_every": 0,
+            "kernel_ms": 11358.0521,
+            "kernel_tps": 4402.163289953565,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4402.163289953565
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13345.878900000002,
+            "cpu": "zcore",
+            "elapsed_ms": 11018.8317,
+            "flush_every": 0,
+            "kernel_ms": 11018.8317,
+            "kernel_tps": 4537.686150519932,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4537.686150519932
+          },
+          "throughput_change_pct": 3.078551422107667
+        }
+      ],
+      "median_change_pct": 4.129415956126592,
+      "minimum_pct": -1.8880835793307793,
+      "maximum_pct": 5.151373270464088
+    },
+    "direct-pair": {
+      "baseline": "align",
+      "candidate": "specialized",
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "align",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13363.251999999999,
+            "cpu": "zcore",
+            "elapsed_ms": 11117.0404,
+            "flush_every": 0,
+            "kernel_ms": 11117.0404,
+            "kernel_tps": 4497.599918769747,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4497.599918769747
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13358.8293,
+            "cpu": "zcore",
+            "elapsed_ms": 10957.0211,
+            "flush_every": 0,
+            "kernel_ms": 10957.0211,
+            "kernel_tps": 4563.2840845766,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4563.2840845766
+          },
+          "throughput_change_pct": 1.460427049830182
+        },
+        {
+          "pair": 2,
+          "order": [
+            "specialized",
+            "align"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13369.6903,
+            "cpu": "zcore",
+            "elapsed_ms": 11804.5954,
+            "flush_every": 0,
+            "kernel_ms": 11804.5954,
+            "kernel_tps": 4235.638605623027,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4235.638605623027
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13330.2855,
+            "cpu": "zcore",
+            "elapsed_ms": 10914.6364,
+            "flush_every": 0,
+            "kernel_ms": 10914.6364,
+            "kernel_tps": 4581.004640704294,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4581.004640704294
+          },
+          "throughput_change_pct": 8.15381261807313
+        },
+        {
+          "pair": 3,
+          "order": [
+            "align",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13564.36,
+            "cpu": "zcore",
+            "elapsed_ms": 11390.862500000001,
+            "flush_every": 0,
+            "kernel_ms": 11390.862500000001,
+            "kernel_tps": 4389.483237112203,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4389.483237112203
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13574.8909,
+            "cpu": "zcore",
+            "elapsed_ms": 10941.1952,
+            "flush_every": 0,
+            "kernel_ms": 10941.1952,
+            "kernel_tps": 4569.884650261975,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4569.884650261975
+          },
+          "throughput_change_pct": 4.109855383989491
+        },
+        {
+          "pair": 4,
+          "order": [
+            "specialized",
+            "align"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13379.1895,
+            "cpu": "zcore",
+            "elapsed_ms": 10911.428600000001,
+            "flush_every": 0,
+            "kernel_ms": 10911.428600000001,
+            "kernel_tps": 4582.3513888914595,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4582.3513888914595
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13331.5458,
+            "cpu": "zcore",
+            "elapsed_ms": 10829.6074,
+            "flush_every": 0,
+            "kernel_ms": 10829.6074,
+            "kernel_tps": 4616.972541405333,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4616.972541405333
+          },
+          "throughput_change_pct": 0.7555324674096697
+        },
+        {
+          "pair": 5,
+          "order": [
+            "align",
+            "specialized"
+          ],
+          "baseline": {
+            "backend": "llvm",
+            "compile_ms": 13321.9038,
+            "cpu": "zcore",
+            "elapsed_ms": 10988.1611,
+            "flush_every": 0,
+            "kernel_ms": 10988.1611,
+            "kernel_tps": 4550.351923762749,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4550.351923762749
+          },
+          "candidate": {
+            "backend": "llvm",
+            "compile_ms": 13304.5656,
+            "cpu": "zcore",
+            "elapsed_ms": 10896.2602,
+            "flush_every": 0,
+            "kernel_ms": 10896.2602,
+            "kernel_tps": 4588.730360899421,
+            "messages": 0,
+            "native_state_sha256": "c15bd62418578d8f777287f221bac707516543d5b767ac171cabb8926d9f139c",
+            "preparation_ticks": 413,
+            "publication": "redstone",
+            "publication_calls": 0,
+            "publication_ms": 0.0,
+            "relaxed_mode": false,
+            "sample": 1,
+            "screen_sha256": "6597ffbdb45a34e2570052f1835b9a9807e4ac9853cf41966a3ca2af2551cdfc",
+            "ticks": 50000,
+            "tps": 4588.730360899421
+          },
+          "throughput_change_pct": 0.8434169000479441
+        }
+      ],
+      "median_change_pct": 1.460427049830182,
+      "minimum_pct": 0.7555324674096697,
+      "maximum_pct": 8.15381261807313
+    }
+  },
+  "budget_prefix_checks": {
+    "target": [
+      2,
+      2141986,
+      3
+    ],
+    "baseline": [
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 0,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 0,
+        "state_sha256": "db51cfe596447dacef541308aef90ca8b7f8e89e71fd457df1a4afc8a667f87e"
+      },
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 1,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 0,
+        "state_sha256": "fa2c9e6155fdabd62b62a28a910ffc767311d5580d40ad37a256b362e45c9f32"
+      },
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 2,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 0,
+        "state_sha256": "3d0cff86cd58688aad5df916443a3fd0ea20ae95978e377f6de5a6b32ee5298a"
+      },
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 3,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 0,
+        "state_sha256": "04832107ff82dce3bebdeefa872f8a0b1ddff2b8ef07bba5acd8ce6aef01c924"
+      },
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 4,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 0,
+        "state_sha256": "24d32763c94cdb1a6c2c5a471b5ebba2ed5d7c76f383c4508004aceff13c2ebc"
+      }
+    ],
+    "candidate": [
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 0,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 0,
+        "state_sha256": "db51cfe596447dacef541308aef90ca8b7f8e89e71fd457df1a4afc8a667f87e"
+      },
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 1,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 0,
+        "state_sha256": "fa2c9e6155fdabd62b62a28a910ffc767311d5580d40ad37a256b362e45c9f32"
+      },
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 2,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 0,
+        "state_sha256": "3d0cff86cd58688aad5df916443a3fd0ea20ae95978e377f6de5a6b32ee5298a"
+      },
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 3,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 1,
+        "state_sha256": "04832107ff82dce3bebdeefa872f8a0b1ddff2b8ef07bba5acd8ce6aef01c924"
+      },
+      {
+        "error": "Compiled execution failed: LLVM exceeded the per-tick operation limit; check for feedback loops or reduce the circuit",
+        "injection_tick": 423,
+        "range_cost": 3,
+        "remaining_budget": 4,
+        "run_tick": 10,
+        "snapshot_words": 776121,
+        "specialized_calls": 1,
+        "state_sha256": "24d32763c94cdb1a6c2c5a471b5ebba2ed5d7c76f383c4508004aceff13c2ebc"
+      }
+    ],
+    "all_equal_except_observer": true
+  },
+  "correctness": {
+    "rust_shadow": "5000 run ticks plus preparation; every tick; passed using specialized strict DLL",
+    "movement_tests": "9 passed including existing budget/invalid-transition cases",
+    "generator_selftests": "4 passed",
+    "build_check": "all targets/all features passed",
+    "production_runtime_native_sources": "unchanged",
+    "full_suite": "not repeated: native runtime and generator hashes equal the prior 335-pass baseline; focused and actual-kernel tests used"
+  },
+  "limitations": [
+    "ZCore pilot only; six other CPU protocols not replayed with generated kernels",
+    "No per-tick relaxed Rust shadow because that variant failed performance gate",
+    "Peak compiler memory and live client delivery not measured",
+    "Partial canonical replay deliberately not specialized",
+    "TSC samples rank ranges; instrumentation perturbs time and compiler layout",
+    "Unused-body control differs in function placement; alignment-only control included separately",
+    "Production profile ingestion, cache format/identity and native generator integration were not added"
+  ],
+  "profile_layout": {
+    "header": [
+      "overflow",
+      "empty graph ranges",
+      "empty canonical ranges",
+      "scalar fallback flips"
+    ],
+    "row": [
+      "path (1 graph physical / 2 canonical flat)",
+      "start",
+      "count",
+      "hits",
+      "TSC ticks"
+    ],
+    "clock_note": "LFENCE/RDTSC samples are instrumented ranking data, not retired-cycle or unperturbed whole-kernel time attribution"
+  },
+  "final_source_hashes": {
+    "tools/experiment_movement_kernels.py": "7639d7e37e57808798bb3144b47a7e50bd5511a26b33a6e827e446bebc46bf6a",
+    "crates/core/examples/experiment_movement_kernel_guards.rs": "ee6d46b8982390861731f122bbba6200eeb0d91ac2ece04c55fc0438a8bbb7ef",
+    "crates/core/examples/bench_engine_compare.rs": "0b7e42f990012864bcc581a89f62972cf210fed2748b9886cb0f67b9c8826b57",
+    "crates/core/src/redpilator/compiler.rs": "07f7e6b6df3e1dd9374dd62b9b41a80716f20896188154952b8cc166e444bbfb",
+    "crates/core/src/redpilator/sampled/llvm/library.rs": "d2a4d4a43000a9110738268d5f420fa8813bb894d0c5bcd3d86d4ba2c8cb8a7c",
+    "crates/core/src/redpilator/sampled/llvm/benchmark.rs": "9c36c1057715ac52d3b48ba2b259f62ad312651d15593ccf7ee70b2c087cd1ca",
+    "crates/core/src/redpilator/sampled/llvm/generated.rs": "0ab7b867467b5f10dc7672ccdbb0b3107da81c3b799ab3754fb08b557dd2e14b",
+    "crates/core/src/redpilator/sampled/llvm/engine.c": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+    "crates/core/src/redpilator/sampled/llvm/llvm_movement.c": "5221529779038e7e9ff99ed46b163b2aafdd092546840e20ed68a242830096ac",
+    "crates/core/src/redpilator/sampled/llvm/abi.h": "95d6e4b1a86e87c5409af3de9cf15c2cda1f6a35b5cd80ba6f0635f833f5be76"
+  },
+  "guard_runner_sha256": "e3ba3a2b46a2ab0ddb83c4a1e730c8c5a4392295eb3e1abc6b2a85d2159e19e3",
+  "assembly_observations": {
+    "generic_helper_modulo_64": {
+      "baseline": 48,
+      "specialized": 0,
+      "unused_body_control": 48,
+      "alignment_control": 0
+    },
+    "alignment_control_text_growth_bytes": 16,
+    "generated_remaining_helpers": "output/contribution calls remain; not all dynamic work eliminated"
+  },
+  "runner_note": "All paired samples used one unchanged runner binary. The final source additionally simplifies a profiling-counter reset outside timing; no native simulation source changed."
+}

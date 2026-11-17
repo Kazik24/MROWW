@@ -1,0 +1,136 @@
+{
+  "recorded_utc": "2026-11-16T13:31:14.028355+00:00",
+  "revision": "7347a517f9af04e2dad8037f870460de7cd7fa2d",
+  "tracked_code_patch_sha256": "127fd878248c0cc3f74be94ec22a2f7c09a2bc6a00d5f83affe6380397ebc9fa",
+  "source_and_runner_hashes": {
+    "crates/core/src/redpilator/sampled/llvm/engine.c": "7bdfce0ff31dd019b1d58a245c1aa07347eb9d9ca87ef8596cc919764fc099af",
+    "crates/core/src/redpilator/sampled/llvm/llvm_movement.c": "5221529779038e7e9ff99ed46b163b2aafdd092546840e20ed68a242830096ac",
+    "crates/core/src/redpilator/sampled/llvm/command_engine.c": "413a0802550bce9ed59880abc3ea71fedf15ebc438337f6a39248f0cb7344cc4",
+    "crates/core/src/redpilator/sampled/llvm/abi.h": "95d6e4b1a86e87c5409af3de9cf15c2cda1f6a35b5cd80ba6f0635f833f5be76",
+    "crates/core/src/redpilator/sampled/llvm/generated.rs": "0ab7b867467b5f10dc7672ccdbb0b3107da81c3b799ab3754fb08b557dd2e14b",
+    "crates/core/src/redpilator/sampled/llvm/cache.rs": "4ae4166f8c967ee8b6234b7216d1f84b82e805c2f408e71bb65565602924132a",
+    "crates/core/src/redpilator/sampled/llvm/library.rs": "012c3586c6ede9874618789b8b253f5de275afe4de918b5c3ed66a2f519b9d3e",
+    "crates/core/src/redpilator/sampled/llvm/mod.rs": "3aae7e16728847f298ad43c45adaf23c8661b15f0bf1596bc2da74b5a784bbc6",
+    "crates/core/src/redpilator/sampled/llvm/benchmark.rs": "9c36c1057715ac52d3b48ba2b259f62ad312651d15593ccf7ee70b2c087cd1ca",
+    "crates/core/src/redpilator/compiler.rs": "fb10e13bd60e0df960dc4d3833d46056e446a19431af46b49f8a503ca22bc7a9",
+    "crates/core/examples/bench_engine_compare.rs": "ab302d173e8ddae2ce80eb29145222e1b47386a6cf1883953a11ce297abbc2e5",
+    "crates/core/examples/bench_pm1_compare.rs": "df20a581e25afd23471a76adf5dbc759a3e13d91b11f6e39f05ad8eba5c41afd",
+    "tools/experiment_alignment.py": "d9305ce103f4ac7a0790840aac3763ea4d8bbd1040a6340d92aea2c958c5a0c3",
+    "tools/experiment_movement_kernels.py": "7639d7e37e57808798bb3144b47a7e50bd5511a26b33a6e827e446bebc46bf6a",
+    "target/release/examples/bench_engine_compare.exe": "08898b4c1152db4d31e1c02f277bd7df6b24cb52868aa1148ac5260a90351d32",
+    "target/release/examples/bench_pm1_compare.exe": "ff5ab0663abcbcecc2e54c4bb8829092be6ff140e1966dd9329cf88b4c8f6b4d",
+    "test_data/cpu-references/redpilator-next-env.ps1": "cf96f6bf1cfb14cd7c2fce0ce3ea560d7fb5b75742108ee2b53c8c2ea76aa089",
+    "test_data/cpu-references/pm1_redpilator_protocol.json": "84950ca81b792890a4124cbd3d338a46bc78df4cb8e95523ee2163e88329d7b0",
+    "test_data/cpu-references/pm1_redpilator_reference.json": "19087beeb2c2a257a30d1eb3c54a4092f3ae3703a3cb4508fc22e601f20c33ed",
+    "test_data\\cpu-references\\experiment3-profile-relaxed.json": "4534dd1528092745d9cd3f205e98606e0521791b791f53ea88d4592b4bf27b1a",
+    "test_data\\cpu-references\\experiment3-profile-strict.json": "f728ba9d16831e4196760aff82cd58b594c15776a51cef1defcd8c87fe7d492a",
+    "test_data\\cpu-references\\experiment3-profile-strict_long.json": "d5ee90e0f3b78d5a3d047f401b735aeb9801b6bd30ffb22005ab986b81945224"
+  },
+  "tools": {
+    "MCHPRS_LLVM_CLANG": {
+      "path": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+      "sha256": "ddcb47eb6f9629b44d233030ebe0dccfa56e8df769340c3e17363e6e4222194e",
+      "version": "clang version 22.0.0git (https://github-com-cache.bf.unity3d.com/Unity-Technologies/llvm-project e5071069e879dbf97a239cda009f8a3e3a4a7365)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: C:\\Program Files\\Unity\\Hub\\Editor\\6000.6.0f1\\Editor\\Data\\PlaybackEngines\\WebGLSupport\\BuildTools\\Emscripten\\llvm\n"
+    },
+    "MCHPRS_LLVM_LINKER": {
+      "path": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+      "sha256": "e06f802da0559979bf9fcf5a37dfd6a70c27efafd606cda355eb6d04d11188ab",
+      "version": "LLD 22.1.8 (https://github.com/rust-lang/llvm-project.git 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)\n"
+    }
+  },
+  "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "cpu": {
+    "Name": "AMD Ryzen 9 5950X 16-Core Processor            ",
+    "NumberOfCores": 16,
+    "NumberOfLogicalProcessors": 32
+  },
+  "fixtures": [
+    {
+      "path": "instant-pistons/PM1_SORT.schem",
+      "sha256": "e338028d50a4400056e25037d1f43d37c08baed079edede6298f78b0a6341654",
+      "observed_sha256": "e338028d50a4400056e25037d1f43d37c08baed079edede6298f78b0a6341654"
+    },
+    {
+      "path": "Q2CK@Q2CK_Anpu1_Pong_KBTV.schem",
+      "sha256": "f4068257797399531ce31d56c972af32d0f73f7d8d496ce1b7b8cd1c178decec",
+      "observed_sha256": "f4068257797399531ce31d56c972af32d0f73f7d8d496ce1b7b8cd1c178decec"
+    },
+    {
+      "path": "piston-research/cpu-bubblesort/CPU_BubbleSort.schem",
+      "sha256": "803dbe5d6751b152bea9b134d6c8571cfafa3e840e372f82e41a535b658f1611",
+      "observed_sha256": "803dbe5d6751b152bea9b134d6c8571cfafa3e840e372f82e41a535b658f1611"
+    },
+    {
+      "path": "ZCore12B_FIX.schem",
+      "sha256": "7f074b967a043f36915f5980cbd4da54f62e45832cc385c1ce53fb21dbe9bac8",
+      "observed_sha256": "7f074b967a043f36915f5980cbd4da54f62e45832cc385c1ce53fb21dbe9bac8"
+    },
+    {
+      "path": "pm1_redpilator.schem",
+      "sha256": "6957e4f9537d519e2133f0168fd25837a084a10e54d96166c72fd3dcf3bb8939",
+      "observed_sha256": "6957e4f9537d519e2133f0168fd25837a084a10e54d96166c72fd3dcf3bb8939"
+    },
+    {
+      "path": "piston-research/test-potados-counter-revised-20261008/TEST_POTADOS_PC_COUNTER.schem",
+      "sha256": "641c50d1903ccf3715759007d5b82e0f04786020d8cce80fbdbb4a3c8a3596f7",
+      "observed_sha256": "641c50d1903ccf3715759007d5b82e0f04786020d8cce80fbdbb4a3c8a3596f7"
+    },
+    {
+      "path": "piston-research/FPU_27.schem",
+      "sha256": "b6182c6c0541d692d635d72d23ecc8f33cef2fb6071f4ba4be66485ff6892bc1",
+      "observed_sha256": "b6182c6c0541d692d635d72d23ecc8f33cef2fb6071f4ba4be66485ff6892bc1"
+    }
+  ],
+  "training": [
+    "pm1-strict",
+    "pm1-relaxed",
+    "zcore-strict",
+    "zcore-relaxed"
+  ],
+  "holdouts": [
+    "ANPU",
+    "BubbleSort",
+    "CHUNGUS",
+    "FPU",
+    "PC_COUNTER"
+  ],
+  "conditions": {
+    "affinity_mask": 256,
+    "timed_publication_calls": 0,
+    "zcore_publication": "redstone",
+    "pm1_publication": "io",
+    "short_ticks": 5000,
+    "pm1_preparation_ticks": 0,
+    "zcore_preparation_ticks": 413,
+    "semantic_snapshots": "outside timing; complete benchmark_snapshot with ordered pending/notes/command effects/logical counters",
+    "controls": [
+      "unchanged production C",
+      "flip helper only aligned(64), text-identical to experiment3 control"
+    ],
+    "command_clock": "existing benchmark_tick_batch(0,0) before Start, unlimited output; logical tick count unchanged; all output counters retained in snapshot equality"
+  },
+  "baseline": {
+    "serial": "335 passed; 0 failed; 30 ignored",
+    "seconds": 488.48,
+    "command": "cargo test -p mchprs_core --lib redpilator --locked -- --test-threads=1",
+    "check": "cargo check -p mchprs_core --all-targets --all-features --locked",
+    "check_result": "passed",
+    "serial_log_sha256": "b74b1aee403bf8e5404cc13a68de85fbf24ca7f573fbae0e660a7c7b8a2e12c0"
+  },
+  "preexisting_dirty_paths": [
+    "crates/core/Cargo.toml",
+    "crates/core/examples/bench_engine_compare.rs",
+    "crates/core/src/redpilator/compiler.rs",
+    "crates/core/src/redpilator/sampled/llvm/benchmark.rs",
+    "crates/core/src/redpilator/sampled/llvm/library.rs",
+    "docs/REDPILATOR_OPTIMIZATION_PLAN.md",
+    "crates/core/examples/experiment_movement_kernel_guards.rs",
+    "tools/experiment_movement_kernels.py",
+    "test_data/cpu-references/experiment3-movement-kernels.md",
+    "test_data/cpu-references/experiment3-movement-kernels.json",
+    "test_data/cpu-references/experiment3-profile-strict.json",
+    "test_data/cpu-references/experiment3-profile-relaxed.json",
+    "test_data/cpu-references/experiment3-profile-strict_long.json"
+  ]
+}

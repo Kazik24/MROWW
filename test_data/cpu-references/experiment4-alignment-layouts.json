@@ -1,0 +1,192 @@
+{
+  "pm1-relaxed-manifest": {
+    "apply_movement_flip": {
+      "requested": 0,
+      "emitted": false,
+      "linked_address": null,
+      "rva": null,
+      "address_modulo": {}
+    },
+    "set_arranged": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442549056,
+      "rva": 98112,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 0,
+        "128": 64
+      }
+    },
+    "execute_output": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442468832,
+      "rva": 17888,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 32,
+        "128": 96
+      }
+    },
+    "drain": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442537120,
+      "rva": 86176,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 32,
+        "128": 32
+      }
+    }
+  },
+  "pm1-strict-manifest": {
+    "apply_movement_flip": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442555968,
+      "rva": 105024,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 0,
+        "128": 64
+      }
+    },
+    "set_arranged": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442546864,
+      "rva": 95920,
+      "address_modulo": {
+        "16": 0,
+        "32": 16,
+        "64": 48,
+        "128": 48
+      }
+    },
+    "execute_output": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442468832,
+      "rva": 17888,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 32,
+        "128": 96
+      }
+    },
+    "drain": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442536544,
+      "rva": 85600,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 32,
+        "128": 96
+      }
+    }
+  },
+  "zcore-relaxed-manifest": {
+    "apply_movement_flip": {
+      "requested": 0,
+      "emitted": false,
+      "linked_address": null,
+      "rva": null,
+      "address_modulo": {}
+    },
+    "set_arranged": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442554448,
+      "rva": 103504,
+      "address_modulo": {
+        "16": 0,
+        "32": 16,
+        "64": 16,
+        "128": 80
+      }
+    },
+    "execute_output": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442467568,
+      "rva": 16624,
+      "address_modulo": {
+        "16": 0,
+        "32": 16,
+        "64": 48,
+        "128": 112
+      }
+    },
+    "drain": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442545312,
+      "rva": 94368,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 32,
+        "128": 32
+      }
+    }
+  },
+  "zcore-strict-manifest": {
+    "apply_movement_flip": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442564528,
+      "rva": 113584,
+      "address_modulo": {
+        "16": 0,
+        "32": 16,
+        "64": 48,
+        "128": 48
+      }
+    },
+    "set_arranged": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442555424,
+      "rva": 104480,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 32,
+        "128": 32
+      }
+    },
+    "execute_output": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442467840,
+      "rva": 16896,
+      "address_modulo": {
+        "16": 0,
+        "32": 0,
+        "64": 0,
+        "128": 0
+      }
+    },
+    "drain": {
+      "requested": 0,
+      "emitted": true,
+      "linked_address": 6442545616,
+      "rva": 94672,
+      "address_modulo": {
+        "16": 0,
+        "32": 16,
+        "64": 16,
+        "128": 80
+      }
+    }
+  }
+}

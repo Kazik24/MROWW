@@ -1,0 +1,73 @@
+{
+  "status": "stopped at user request",
+  "recorded_utc": "2026-11-16T16:12:25.004431+00:00",
+  "sessions": [
+    {
+      "session": 0,
+      "pairs": 40,
+      "same": 20,
+      "separate": 20,
+      "pid": 13072,
+      "command": {
+        "command": [
+          "F:\\rustrepos\\MCHPRS\\target\\release\\examples\\bench_pm1_compare.exe",
+          "--image-crossover",
+          "F:\\rustrepos\\MCHPRS\\test_data\\cpu-references\\experiment4-image-crossover-plan.json",
+          "0",
+          "F:\\rustrepos\\MCHPRS\\work\\image-crossover-20261116\\session0\\results.json"
+        ],
+        "plan_sha256": "604577053ac352b27d9ec8d6affbf88f504eec4a595e4809a64810f06fd2919e",
+        "binary_sha256": "8722d807dc5a72d730db9f8a96a2c1ae0f9190ecb8f6fee93f3f445b66d71b27",
+        "started_unix": 1794842327.1347833,
+        "work_dir": "F:\\rustrepos\\MCHPRS\\work\\image-crossover-20261116\\session0\\owned-llvm",
+        "tools": {
+          "MCHPRS_LLVM_CLANG": {
+            "path": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+            "sha256": "ddcb47eb6f9629b44d233030ebe0dccfa56e8df769340c3e17363e6e4222194e"
+          },
+          "MCHPRS_LLVM_LINKER": {
+            "path": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+            "sha256": "e06f802da0559979bf9fcf5a37dfd6a70c27efafd606cda355eb6d04d11188ab"
+          }
+        }
+      },
+      "raw": "experiment4-image-crossover-session0-raw.json.gz",
+      "sha256": "28a5bc3bec450bac5512adc773d1f8aff3358e8afdc12c080c03ba84a006e3ad"
+    },
+    {
+      "session": 1,
+      "pairs": 36,
+      "same": 18,
+      "separate": 18,
+      "pid": 36472,
+      "command": {
+        "command": [
+          "F:\\rustrepos\\MCHPRS\\target\\release\\examples\\bench_pm1_compare.exe",
+          "--image-crossover",
+          "F:\\rustrepos\\MCHPRS\\test_data\\cpu-references\\experiment4-image-crossover-plan.json",
+          "1",
+          "F:\\rustrepos\\MCHPRS\\work\\image-crossover-20261116\\session1\\results.json"
+        ],
+        "plan_sha256": "604577053ac352b27d9ec8d6affbf88f504eec4a595e4809a64810f06fd2919e",
+        "binary_sha256": "8722d807dc5a72d730db9f8a96a2c1ae0f9190ecb8f6fee93f3f445b66d71b27",
+        "started_unix": 1794843978.3606014,
+        "work_dir": "F:\\rustrepos\\MCHPRS\\work\\image-crossover-20261116\\session1\\owned-llvm",
+        "tools": {
+          "MCHPRS_LLVM_CLANG": {
+            "path": "C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/llvm/clang.exe",
+            "sha256": "ddcb47eb6f9629b44d233030ebe0dccfa56e8df769340c3e17363e6e4222194e"
+          },
+          "MCHPRS_LLVM_LINKER": {
+            "path": "C:/Users/Maciej/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/lld-link.exe",
+            "sha256": "e06f802da0559979bf9fcf5a37dfd6a70c27efafd606cda355eb6d04d11188ab"
+          }
+        }
+      },
+      "raw": "experiment4-image-crossover-session1-raw.json.gz",
+      "sha256": "99b3d3006db1472b8d4b156df5385eb86d6f8fbc02f0be3ac62fb36ab76336c6"
+    }
+  ],
+  "analysis": "Not performed: second session incomplete; no calibration or timing claim.",
+  "production_change": null,
+  "cleanup": "Generated work cache artifacts removed separately; sealed plan and raw evidence retained."
+}

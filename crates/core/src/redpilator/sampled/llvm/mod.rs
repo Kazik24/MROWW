@@ -206,6 +206,20 @@ impl LlvmRuntime {
         ticks: &[TickEntry],
         monitor: Option<&crate::redpilator::TaskMonitor>,
     ) -> Result<Self, ScratchError> {
+        Self::new_module(program, ticks, monitor, #[cfg(feature = "plot-bench")] None)
+    }
+
+    #[cfg(feature = "plot-bench")]
+    pub(in crate::redpilator) fn benchmark_new(program: &Program, ticks: &[TickEntry], path: &std::path::Path) -> Result<Self, ScratchError> {
+        Self::new_module(program, ticks, None, Some(path))
+    }
+
+    fn new_module(
+        program: &Program,
+        ticks: &[TickEntry],
+        monitor: Option<&crate::redpilator::TaskMonitor>,
+        #[cfg(feature = "plot-bench")] module: Option<&std::path::Path>,
+    ) -> Result<Self, ScratchError> {
         if monitor.is_some_and(crate::redpilator::TaskMonitor::cancelled) {
             return Err(ScratchError {
                 position: None,
@@ -223,6 +237,12 @@ impl LlvmRuntime {
             eprintln!("LLVM program encoding_ms={:.3}", encoding_started.elapsed().as_secs_f64() * 1000.0);
         }
         log_artifact_diagnostics(generated.encoded.blob.len());
+        #[cfg(feature = "plot-bench")]
+        let library = match module {
+            Some(path) => Library::benchmark_load(path, &generated)?,
+            None => Library::load_program(&generated, monitor)?,
+        };
+        #[cfg(not(feature = "plot-bench"))]
         let library = Library::load_program(&generated, monitor)?;
         let state = library.create_embedded_state(initial_ticks.entries.len() as u32)?;
         drop(generated);

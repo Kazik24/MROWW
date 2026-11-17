@@ -39,6 +39,25 @@ pub(super) struct Library {
 
 #[cfg(any(windows, target_os = "linux"))]
 impl Library {
+    #[cfg(feature = "plot-bench")]
+    pub(super) fn movement_profile(&self, reset: bool) -> Option<Vec<u64>> {
+        // SAFETY: This optional diagnostic export belongs to the retained experimental module.
+        let read: unsafe extern "C" fn(u32, *mut u64, u32) -> u32 = unsafe { self._module.symbol(b"ne_movement_profile\0").ok()? };
+        if reset {
+            // SAFETY: Reset touches only private profiling counters, with no output buffer.
+            unsafe { read(1, std::ptr::null_mut(), 0) };
+            return Some(Vec::new());
+        }
+        // SAFETY: A null output queries the required size, or resets counters when requested.
+        let count = unsafe { read(0, std::ptr::null_mut(), 0) };
+        if count > 1_000_000 {
+            return None;
+        }
+        let mut words = vec![0; count as usize];
+        // SAFETY: The synchronous export receives exactly its requested writable capacity.
+        (unsafe { read(0, words.as_mut_ptr(), count) } == count).then_some(words)
+    }
+
     /// Load the native executor and resolve its required API.
     ///
     /// Inputs: The selected cache artifact or explicit library path.
@@ -68,6 +87,15 @@ impl Library {
                 reason: "could not prepare LLVM module; see server log for details",
             }
         })?;
+        Self::load_path(&path, program)
+    }
+
+    #[cfg(feature = "plot-bench")]
+    pub(super) fn benchmark_load(path: &Path, program: &super::generated::GeneratedProgram) -> Result<Self, ScratchError> {
+        Self::load_path(path, Some(program))
+    }
+
+    fn load_path(path: &Path, program: Option<&super::generated::GeneratedProgram>) -> Result<Self, ScratchError> {
         let load_started = std::time::Instant::now();
         let module = Module::open(&path)?;
         if std::env::var_os("MCHPRS_LLVM_DIAGNOSTICS").is_some() {

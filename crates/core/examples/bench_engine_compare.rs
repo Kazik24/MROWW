@@ -24,8 +24,11 @@ fn main() {
     let mut flush_every = 0u32;
     let mut relaxed_mode = false;
     let mut samples = 3u32;
+    let mut modules: Option<Vec<PathBuf>> = None;
     for arg in &args[2..] {
-        if arg == "--relaxed" {
+        if let Some(path) = arg.strip_prefix("--modules=") {
+            modules = Some(serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap());
+        } else if arg == "--relaxed" {
             relaxed_mode = true;
         } else if let Some(mode) = arg.strip_prefix("--publication=") {
             publication = PublicationMode::parse(mode).expect("publication: io, redstone or all");
@@ -37,6 +40,7 @@ fn main() {
             ticks = arg.parse().expect("tick count or --publication/--flush-every option");
         }
     }
+    if let Some(modules) = &modules { samples = modules.len().try_into().unwrap(); }
     let program_ticks = if pm1 {
         11_752
     } else if ticks > 5_000 {
@@ -85,9 +89,13 @@ fn main() {
     let mut results = Vec::new();
     for sample in 1..=samples {
         let mut world = cpus::load_cpu(cpu);
-        let mut compiler = seed
-            .benchmark_restart(&world, bounds, world.scheduler().iter_entries().collect())
-            .unwrap();
+        let module = modules.as_ref().map(|paths| &paths[(sample - 1) as usize]);
+        let pending = world.scheduler().iter_entries().collect();
+        let mut compiler = match module {
+            Some(path) => seed.benchmark_restart_module(&world, bounds, pending, path),
+            None => seed.benchmark_restart(&world, bounds, pending),
+        }.unwrap();
+        if modules.is_some() { compiler.benchmark_tick_batch(0, 0).unwrap(); }
         compiler.try_on_use_block(cpu.origin + cpu.start).unwrap();
         for _ in 0..preparation {
             compiler.tick().unwrap();
@@ -98,6 +106,7 @@ fn main() {
         }
         let mut publication_calls = 0u32;
         let mut publication_elapsed = std::time::Duration::ZERO;
+        compiler.benchmark_movement_profile(true);
         let start = Instant::now();
         for tick in 1..=ticks {
             compiler.tick().unwrap();
@@ -109,10 +118,13 @@ fn main() {
             }
         }
         let elapsed = start.elapsed();
+        if let Some(profile) = compiler.benchmark_movement_profile(false) {
+            std::fs::write(output.with_extension("movement-profile.json"), serde_json::to_vec(&profile).unwrap()).unwrap();
+        }
         let native_state_hash = kernel_analysis.then(|| {
             let snapshot = compiler.benchmark_snapshot().unwrap();
             if let Some(expected) = &expected_snapshot {
-                assert_eq!(&snapshot, expected, "fresh executor state differs");
+                assert!(&snapshot == expected, "fresh executor state differs: first word {:?}", snapshot.iter().zip(expected).position(|(a, b)| a != b));
             } else {
                 expected_snapshot = Some(snapshot.clone());
             }
@@ -160,6 +172,8 @@ fn main() {
             assert!(world.piston_state().events.is_empty() && world.piston_state().motions.is_empty());
         }
         let row = json!({"backend":"llvm","relaxed_mode":relaxed_mode,"cpu":cpu_name,"sample":sample,"ticks":ticks,"preparation_ticks":preparation,"flush_every":flush_every,"publication":publication.name(),"publication_calls":publication_calls,"publication_ms":publication_elapsed.as_secs_f64()*1000.0,"elapsed_ms":elapsed.as_secs_f64()*1000.0,"kernel_ms":(elapsed-publication_elapsed).as_secs_f64()*1000.0,"kernel_tps":ticks as f64/(elapsed-publication_elapsed).as_secs_f64(),"tps":ticks as f64/elapsed.as_secs_f64(),"compile_ms":compile_ms,"screen_sha256":screen_hash,"messages":messages,"native_state_sha256":native_state_hash});
+        let mut row = row;
+        row["module"] = json!(module);
         println!("FAIR_RESULT {row}");
         results.push(row);
         std::fs::write(&output, serde_json::to_vec_pretty(&results).unwrap()).unwrap();
