@@ -8,8 +8,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  MCHPRS_LLVM_CLANG: clang-19
-  MCHPRS_LLVM_LINKER: ld.lld-19
+  MCHPRS_LLVM_CLANG: /usr/bin/clang-19
+  MCHPRS_LLVM_LINKER: /usr/bin/ld.lld-19
   CARGO_PROFILE_DEV_DEBUG: '0'
   CARGO_PROFILE_TEST_DEBUG: '0'
 
@@ -28,7 +28,10 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - name: Install native compiler
-        run: sudo apt-get update && sudo apt-get install -y clang-19 lld-19
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang-19 lld-19
+          "$MCHPRS_LLVM_CLANG" --version
+          "$MCHPRS_LLVM_LINKER" --version
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Clippy

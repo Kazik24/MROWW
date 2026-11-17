@@ -661,7 +661,7 @@ pub fn serve_listener(listener: TcpListener) -> std::io::Result<()> {
     for incoming in listener.incoming() {
         let stream = incoming?;
         if active
-            .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |n| (n < MAX_CLIENTS).then_some(n + 1))
+            .try_update(Ordering::SeqCst, Ordering::SeqCst, |n| (n < MAX_CLIENTS).then_some(n + 1))
             .is_err()
         {
             drop(stream);
