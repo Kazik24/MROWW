@@ -7,6 +7,7 @@ Based on [MCHPRS project](https://github.com/MCHPR/MCHPRS)
 By Kazik24 and Lord225.
 
 ---
+
 A creative redstone server for Minecraft Java 1.21.5. Each 512x512 plot runs on its own thread. There is a physical redstone/piston interpreter and a rewritten Redpilator with an optional LLVM backend, plus tools for building and debugging circuits.
 
 This is for computational redstone. It implements a subset of Minecraft mechanics.
@@ -159,18 +160,16 @@ Java parity checks use separate Minecraft Java 1.21.5 captures with matching geo
 
 ## Performance
 
-Approximate throughput in game ticks per second (TPS):
+Approximate game ticks per second (TPS), on a Ryzen 9 5950X, Windows x64, optimized builds. Compiled figures assume relaxed mode and IO-only publication; the latest PM1/ZCore runs used a 10 Hz cap and one compressed loopback client.
 
-- **PM1 SORT (active program):** Interpreter: **160 TPS**; LLVM backend **1,019 TPS**.
-- **ZCore12B (fully instant):** Interpreter **119 TPS**; Rust backend **1,810 TPS**; LLVM backend **3,126 TPS**. Compilation: Rust **28.6 s**, LLVM **28.0 s**.
-- **ANPU Pong (piston used):** Interpreter **1,016 TPS**; Rust backend **16,501 TPS**; LLVM backend **26,525 TPS**. Compilation: Rust **16.6 s**, LLVM **16.8 s**.
-- **CHUNGUS Mandelbrot (fully non-instant):** Interpreter **~1,884 TPS**; Rust backend **16,468 TPS**; LLVM backend **27,673 TPS**. Compilation: Rust **95.9 s**, LLVM **98.0 s**.
-- **FPU: (fully instant, combinational)** Interpreter **200 TPS**; Rust backend **2,443 TPS**; LLVM backend **3,834 TPS**. Compilation: Rust **7.4 s**, LLVM **7.5s**.
-- **PC_COUNTER (fully instant counter)** Interpreter **680 TPS**; Rust backend **13,706 TPS**; LLVM backend **21,856 TPS**. Compilation: Rust **1.1 s**, LLVM **1.1 s**.
+- **PM1 SORT (active program):** Interpreter **160 TPS**; LLVM backend **5,284 TPS**.
+- **ZCore12B (fully instant):** Interpreter **119 TPS**; Rust backend **1,810 TPS**; LLVM backend **5,461 TPS**. Compilation: Rust **28.6 s**, LLVM **28.0 s**.
+- **ANPU Pong (piston used):** Interpreter **1,016 TPS**; Rust backend **16,501 TPS**; LLVM backend **46,300 TPS**. Compilation: Rust **16.6 s**, LLVM **16.8 s**.
+- **CHUNGUS Mandelbrot (fully non-instant):** Interpreter **~1,884 TPS**; Rust backend **16,468 TPS**; LLVM backend **48,300 TPS**. Compilation: Rust **95.9 s**, LLVM **98.0 s**.
+- **FPU (fully instant, combinational):** Interpreter **200 TPS**; Rust backend **2,443 TPS**; LLVM backend **6,700 TPS**. Compilation: Rust **7.4 s**, LLVM **7.5 s**.
+- **PC_COUNTER (fully instant counter):** Interpreter **680 TPS**; Rust backend **13,706 TPS**; LLVM backend **38,200 TPS**. Compilation: Rust **1.1 s**, LLVM **1.1 s**.
 
-Recorded on a Ryzen 9 5950X, Windows x64, with optimized builds. Compiled TPS excludes publication and server overhead, which can reduce throughput; short runs do not establish sustained performance.
-
-An [older PM1 interpreter benchmark](test_data/cpu-references/pm1-sort-correction-results.json) measured **192 TPS**, or **62.68 s** for **12,051 ticks** including startup. Its measurement interval differs from the LLVM program-only result above.
+[Recorded results](test_data/cpu-references/llvm_live_publication_results.json). Estimates scale earlier LLVM rates by ZCore's measured improvement; interpreter, Rust and compilation figures are unchanged.
 
 To run checks:
 
