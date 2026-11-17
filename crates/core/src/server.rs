@@ -585,9 +585,14 @@ impl MinecraftServer {
                 break;
             }
 
-            let packets = self.network.handshaking_clients[client_idx].receive_packets();
-            for packet in packets {
+            for _ in 0..128 {
+                let Some(packet) = self.network.handshaking_clients[client_idx].receive_packet() else {
+                    break;
+                };
                 packet.handle(self, client_idx);
+                if self.network.handshaking_clients.len() != clients_len {
+                    break;
+                }
             }
 
             let new_len = self.network.handshaking_clients.len();

@@ -542,7 +542,9 @@ impl Plot {
         // Another running plot can claim this plot before teleporting here.
         // Refresh the cached owner so permission checks reflect that claim.
         self.owner = database::get_plot_owner(self.world.x, self.world.z).map(|s| s.parse::<HyphenatedUUID>().unwrap().0);
-        self.save();
+        if let Err(error) = self.save() {
+            tracing::error!(%error, plot_x = self.world.x, plot_z = self.world.z, "Failed to save plot");
+        }
         let status = CEntityStatus {
             entity_id: player.entity_id as i32,
             entity_status: if player.can_use_commands() { 26 } else { 24 },
@@ -1471,10 +1473,14 @@ impl Plot {
         }
     }
 
-    fn save(&mut self) {
+    fn save(&mut self) -> Result<(), mchprs_save_data::plot_data::PlotSaveError> {
+        self.save_to(std::path::Path::new(&format!("./world/plots/p{},{}", self.world.x, self.world.z)))
+    }
+
+    fn save_to(&mut self, path: &std::path::Path) -> Result<(), mchprs_save_data::plot_data::PlotSaveError> {
         // The checkout worker owns the durable save until its result is applied.
         if self.git_checkout_locked() {
-            return;
+            return Ok(());
         }
         let world = &mut self.world;
         let chunk_data: Vec<ChunkData<PLOT_SECTIONS>> = world.chunks.iter_mut().map(|c| c.save()).collect();
@@ -1486,9 +1492,10 @@ impl Plot {
             piston_state: world.piston_state.clone(),
             piston_animation: self.piston_animation,
         };
-        data.save_to_file(format!("./world/plots/p{},{}", world.x, world.z)).unwrap();
+        data.save_to_file(path)?;
 
         self.reset_timings();
+        Ok(())
     }
 
     fn run(&mut self, initial_player: Option<Player>) {
@@ -1600,7 +1607,9 @@ impl Drop for Plot {
             tracing::error!(%error, "compiled state export failed during plot shutdown; skipping save");
         } else {
             self.world.chunks.iter_mut().for_each(|chunk| chunk.compress());
-            self.save();
+            if let Err(error) = self.save() {
+                tracing::error!(%error, plot_x = self.world.x, plot_z = self.world.z, "Failed to save plot");
+            }
         }
         let world = &self.world;
         self.message_sender.send(Message::PlotUnload(world.x, world.z)).unwrap();

@@ -384,8 +384,9 @@ fn adder(output: &PathBuf, samples: usize, operations: usize) {
                                     word | (value << bit)
                                 });
                         if actual != value {
-                            first_divergence
-                                .get_or_insert_with(|| format!("Redpilator case {} tick {tick} {port}: {actual} vs expected {value}", i % cases.len()));
+                            first_divergence.get_or_insert_with(|| {
+                                format!("Redpilator case {} tick {tick} {port}: {actual} vs expected {value}", i % cases.len())
+                            });
                             if !continue_on_divergence {
                                 assert_eq!(actual, value, "Redpilator ADDER11BIT {} tick {tick} {port}", i % cases.len());
                             }

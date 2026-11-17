@@ -1089,3 +1089,17 @@ fn teleport_fences_movement_and_edits_until_destination_view_is_queued() {
     assert_eq!(ids[ids.len() - 2..], [0x08, 0x04]);
     assert_eq!(blocks, [(target, Block::Air.get_id())]);
 }
+
+#[test]
+fn persistent_save_failure_returns_errors_and_preserves_the_world() {
+    let (mut plot, _peer) = fixture(false);
+    let path = std::env::temp_dir().join(format!("mroww-save-failure-{}", rand::random::<u64>()));
+    std::fs::write(&path, b"original").unwrap();
+    // A regular file cannot be the parent directory of a save.
+    for _ in 0..2 {
+        assert!(plot.save_to(&path.join("plot")).is_err());
+    }
+    assert_eq!(std::fs::read(&path).unwrap(), b"original");
+    assert_eq!(plot.world.get_block(BlockPos::new(32, 20, 32)), Block::Sandstone {});
+    std::fs::remove_file(path).unwrap();
+}

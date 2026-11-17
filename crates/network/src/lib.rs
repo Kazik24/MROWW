@@ -12,6 +12,10 @@ use std::net::{Shutdown, TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, mpsc};
 use std::thread;
+use std::time::{Duration, Instant};
+
+const ADMISSION_TIMEOUT: Duration = Duration::from_secs(30);
+const MAX_HANDSHAKING_CLIENTS: usize = 128;
 use tracing::{debug, warn};
 
 #[derive(Debug)]
@@ -152,10 +156,12 @@ pub mod test_support {
     use packets::{DecodeResult, PacketDecoderExt};
     use std::io::{self, Cursor, Read};
 
+    pub type IncomingPackets = mpsc::SyncSender<Box<dyn ServerBoundPacket>>;
+
     pub struct Connection {
         pub player: PlayerConn,
         pub peer: TcpStream,
-        pub incoming: mpsc::SyncSender<Box<dyn ServerBoundPacket>>,
+        pub incoming: IncomingPackets,
     }
 
     pub fn connection(compressed: bool) -> io::Result<Connection> {
@@ -204,6 +210,11 @@ pub mod test_support {
     }
 
     pub fn handshaking_connection(compressed: bool) -> io::Result<(NetworkServer, TcpStream)> {
+        let (server, peer, _) = handshaking_connection_with_sender(compressed)?;
+        Ok((server, peer))
+    }
+
+    pub fn handshaking_connection_with_sender(compressed: bool) -> io::Result<(NetworkServer, TcpStream, IncomingPackets)> {
         let conn = connection(compressed)?;
         let (_, client_receiver) = mpsc::channel();
         Ok((
@@ -218,9 +229,11 @@ pub mod test_support {
                     displayed_skin_parts: 0,
                     forwarding_pending: false,
                     protocol_phase: 0,
+                    admitted_at: Instant::now(),
                 }],
             },
             conn.peer,
+            conn.incoming,
         ))
     }
 }
@@ -251,6 +264,7 @@ mod connection_cleanup_tests {
                 displayed_skin_parts: 0,
                 forwarding_pending: false,
                 protocol_phase: 0,
+                admitted_at: Instant::now(),
             },
             sender,
             peer,
@@ -283,6 +297,34 @@ mod connection_cleanup_tests {
     }
 
     #[test]
+    fn expired_admission_closes_the_socket() {
+        let (mut expired, _sender, mut peer) = client(3);
+        expired.admitted_at = Instant::now() - ADMISSION_TIMEOUT;
+        let (_sender, receiver) = mpsc::channel();
+        let mut server = NetworkServer {
+            client_receiver: receiver,
+            handshaking_clients: vec![expired],
+        };
+        server.update();
+        assert!(server.handshaking_clients.is_empty());
+        assert_eq!(peer.read(&mut [0]).unwrap(), 0);
+    }
+
+    #[test]
+    fn admission_limit_rejects_excess_connections() {
+        let (connection, _sender, mut peer) = client(4);
+        let (sender, receiver) = mpsc::channel();
+        sender.send(connection.client).unwrap();
+        let mut server = NetworkServer {
+            client_receiver: receiver,
+            handshaking_clients: (0..MAX_HANDSHAKING_CLIENTS).map(|i| client(i as u32).0).collect(),
+        };
+        server.update();
+        assert_eq!(server.handshaking_clients.len(), MAX_HANDSHAKING_CLIENTS);
+        assert_eq!(peer.read(&mut [0]).unwrap(), 0);
+    }
+
+    #[test]
     fn login_transition_does_not_revive_a_closed_connection() {
         let (mut connection, _sender, _peer) = client(1);
         connection.close_connection();
@@ -300,6 +342,7 @@ pub struct HandshakingConn {
     pub displayed_skin_parts: u8,
     pub forwarding_pending: bool,
     pub protocol_phase: u8,
+    admitted_at: Instant,
 }
 
 impl HandshakingConn {
@@ -309,6 +352,21 @@ impl HandshakingConn {
 
     pub fn receive_packets(&mut self) -> Vec<Box<dyn ServerBoundPacket>> {
         self.client.receive_packets(&mut self.alive)
+    }
+
+    /// Leave later packets queued when admission transfers this connection to a player.
+    pub fn receive_packet(&mut self) -> Option<Box<dyn ServerBoundPacket>> {
+        if !self.alive {
+            return None;
+        }
+        match self.client.packets.try_recv() {
+            Ok(packet) => Some(packet),
+            Err(mpsc::TryRecvError::Disconnected) => {
+                self.alive = false;
+                None
+            }
+            Err(mpsc::TryRecvError::Empty) => None,
+        }
     }
 
     pub fn set_compressed(&self, compressed: bool) {
@@ -366,7 +424,12 @@ pub struct NetworkClient {
 
 impl NetworkClient {
     fn listen(mut stream: TcpStream, sender: mpsc::SyncSender<Box<dyn ServerBoundPacket>>, compressed: Arc<AtomicBool>) {
+        if stream.set_read_timeout(Some(ADMISSION_TIMEOUT)).is_err() {
+            let _ = stream.shutdown(Shutdown::Both);
+            return;
+        }
         let mut state = NetworkState::Handshake;
+        let mut admission = true;
         let peer = stream.peer_addr().ok();
         loop {
             let packet = match read_packet(&mut stream, &compressed, &mut state) {
@@ -383,6 +446,13 @@ impl NetworkClient {
                     return;
                 }
             };
+            if admission && state == NetworkState::Play {
+                if stream.set_read_timeout(None).is_err() {
+                    let _ = stream.shutdown(Shutdown::Both);
+                    return;
+                }
+                admission = false;
+            }
             // Only this connection's reader waits when the bounded queue fills.
             // Pausing reads applies TCP backpressure during plot stalls without
             // dropping ordered actions or disconnecting on a temporary burst.
@@ -428,14 +498,26 @@ pub struct NetworkServer {
 }
 
 impl NetworkServer {
-    fn listen(bind_address: &str, sender: mpsc::Sender<NetworkClient>) {
+    fn listen(bind_address: &str, sender: mpsc::SyncSender<NetworkClient>) {
         let listener = TcpListener::bind(bind_address).unwrap();
 
         for (index, stream) in listener.incoming().enumerate() {
-            let stream = stream.unwrap();
+            let stream = match stream {
+                Ok(stream) => stream,
+                Err(error) => {
+                    warn!(%error, "Failed to accept client");
+                    continue;
+                }
+            };
             let (packet_sender, packet_receiver) = mpsc::sync_channel(64);
             let compressed = Arc::new(AtomicBool::new(false));
-            let client_stream = stream.try_clone().unwrap();
+            let client_stream = match stream.try_clone() {
+                Ok(stream) => stream,
+                Err(error) => {
+                    warn!(%error, "Failed to clone client socket");
+                    continue;
+                }
+            };
             let client_compressed = compressed.clone();
             thread::spawn(move || {
                 NetworkClient::listen(client_stream, packet_sender, client_compressed);
@@ -454,7 +536,7 @@ impl NetworkServer {
 
     /// Creates a new `NetworkServer`. The server will then start accepting TCP clients.
     pub fn new(bind_address: String) -> NetworkServer {
-        let (sender, receiver) = mpsc::channel();
+        let (sender, receiver) = mpsc::sync_channel(MAX_HANDSHAKING_CLIENTS);
         thread::spawn(move || NetworkServer::listen(&bind_address, sender));
         NetworkServer {
             client_receiver: receiver,
@@ -465,9 +547,15 @@ impl NetworkServer {
     pub fn update(&mut self) {
         // Dropping closed pre-login/status clients also releases their sender
         // handles, waking idle writer threads so they can exit.
-        self.handshaking_clients.retain(|client| client.alive);
+        self.handshaking_clients.retain_mut(|client| {
+            if client.admitted_at.elapsed() >= ADMISSION_TIMEOUT {
+                client.close_connection();
+            }
+            client.alive
+        });
         loop {
             match self.client_receiver.try_recv() {
+                Ok(client) if self.handshaking_clients.len() >= MAX_HANDSHAKING_CLIENTS => client.close_connection(),
                 Ok(client) => self.handshaking_clients.push(HandshakingConn {
                     client,
                     alive: true,
@@ -477,10 +565,12 @@ impl NetworkServer {
                     displayed_skin_parts: 0,
                     forwarding_pending: false,
                     protocol_phase: 0,
+                    admitted_at: Instant::now(),
                 }),
                 Err(mpsc::TryRecvError::Empty) => break,
                 Err(mpsc::TryRecvError::Disconnected) => {
-                    panic!("Client receiver channel disconnected!");
+                    warn!("Client listener channel disconnected");
+                    break;
                 }
             }
         }

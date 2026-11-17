@@ -27,45 +27,53 @@ pub fn replay_with_visuals(cpu: Cpu, expected: &Reference, screen_only: bool, fl
     let mut elapsed = Duration::ZERO;
     let active_ticks = cpu.active_ticks;
     let mut active = Duration::ZERO;
-    let visual_counts = replay(&mut world, cpu, expected, screen_only, flush_every, redpilator, |world, step| match step {
-        ReplayStep::Start => {
-            if let Some(compiler) = &mut compiler {
-                compiler.try_on_use_block(cpu.start + cpu.origin).unwrap();
-            } else {
-                click_cpu(world, cpu, cpu.start);
+    let visual_counts = replay(
+        &mut world,
+        cpu,
+        expected,
+        screen_only,
+        flush_every,
+        redpilator,
+        |world, step| match step {
+            ReplayStep::Start => {
+                if let Some(compiler) = &mut compiler {
+                    compiler.try_on_use_block(cpu.start + cpu.origin).unwrap();
+                } else {
+                    click_cpu(world, cpu, cpu.start);
+                }
             }
-        }
-        ReplayStep::Tick(tick) => {
-            let now = Instant::now();
-            if let Some(compiler) = &mut compiler {
-                compiler.tick().unwrap();
-                compiler.try_flush(world).unwrap();
-            } else {
-                world.tick_interpreted();
+            ReplayStep::Tick(tick) => {
+                let now = Instant::now();
+                if let Some(compiler) = &mut compiler {
+                    compiler.tick().unwrap();
+                    compiler.try_flush(world).unwrap();
+                } else {
+                    world.tick_interpreted();
+                }
+                let tick_elapsed = now.elapsed();
+                elapsed += tick_elapsed;
+                if tick <= active_ticks {
+                    active += tick_elapsed;
+                }
             }
-            let tick_elapsed = now.elapsed();
-            elapsed += tick_elapsed;
-            if tick <= active_ticks {
-                active += tick_elapsed;
+            ReplayStep::StopTick => {
+                if let Some(compiler) = &mut compiler {
+                    compiler.tick().unwrap();
+                    compiler.try_flush(world).unwrap();
+                } else {
+                    world.tick_interpreted();
+                }
             }
-        }
-        ReplayStep::StopTick => {
-            if let Some(compiler) = &mut compiler {
-                compiler.tick().unwrap();
-                compiler.try_flush(world).unwrap();
-            } else {
-                world.tick_interpreted();
+            ReplayStep::Stop => {
+                let stop = cpu.stop.unwrap();
+                if let Some(compiler) = &mut compiler {
+                    compiler.try_on_use_block(stop + cpu.origin).unwrap();
+                } else {
+                    click_cpu(world, cpu, stop);
+                }
             }
-        }
-        ReplayStep::Stop => {
-            let stop = cpu.stop.unwrap();
-            if let Some(compiler) = &mut compiler {
-                compiler.try_on_use_block(stop + cpu.origin).unwrap();
-            } else {
-                click_cpu(world, cpu, stop);
-            }
-        }
-    });
+        },
+    );
     RunTiming {
         total: elapsed,
         active,

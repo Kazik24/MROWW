@@ -56,10 +56,17 @@ impl Compiler {
     /// Restart a validated benchmark module without mutating process-wide loader environment.
     #[cfg(feature = "plot-bench")]
     pub fn benchmark_restart_module<W: World>(
-        &self, pristine: &W, bounds: (BlockPos, BlockPos), ticks: Vec<TickEntry>, path: &std::path::Path,
+        &self,
+        pristine: &W,
+        bounds: (BlockPos, BlockPos),
+        ticks: Vec<TickEntry>,
+        path: &std::path::Path,
     ) -> Result<Self, CompileError> {
         let mut fresh = self.benchmark_restart(pristine, bounds, ticks.clone())?;
-        assert!(Arc::ptr_eq(&self.cached_program().unwrap(), &fresh.cached_program().unwrap()), "benchmark restart changed the physical program");
+        assert!(
+            Arc::ptr_eq(&self.cached_program().unwrap(), &fresh.cached_program().unwrap()),
+            "benchmark restart changed the physical program"
+        );
         fresh.llvm_runtime = Some(LlvmRuntime::benchmark_new(&fresh.cached_program().unwrap(), &ticks, path).map_err(CompileError::Unsupported)?);
         fresh.llvm_runtime.as_mut().unwrap().initialize_tick(pristine.piston_state().logical_tick);
         Ok(fresh)

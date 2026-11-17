@@ -206,7 +206,13 @@ impl LlvmRuntime {
         ticks: &[TickEntry],
         monitor: Option<&crate::redpilator::TaskMonitor>,
     ) -> Result<Self, ScratchError> {
-        Self::new_module(program, ticks, monitor, #[cfg(feature = "plot-bench")] None)
+        Self::new_module(
+            program,
+            ticks,
+            monitor,
+            #[cfg(feature = "plot-bench")]
+            None,
+        )
     }
 
     #[cfg(feature = "plot-bench")]
@@ -533,6 +539,18 @@ pub(in crate::redpilator) struct LlvmRuntime;
 
 #[cfg(not(any(windows, target_os = "linux")))]
 impl LlvmRuntime {
+    #[cfg(feature = "plot-bench")]
+    pub(in crate::redpilator) fn benchmark_addresses(&self) -> [usize; 3] {
+        unreachable!()
+    }
+    #[cfg(feature = "plot-bench")]
+    pub(in crate::redpilator) fn benchmark_movement_profile(&self, _: bool) -> Option<Vec<u64>> {
+        None
+    }
+    #[cfg(feature = "plot-bench")]
+    pub(in crate::redpilator) fn benchmark_new(_: &Program, _: &[TickEntry], _: &std::path::Path) -> Result<Self, ScratchError> {
+        Library::load().map(|_| Self)
+    }
     pub(in crate::redpilator) fn has_effects(&self) -> bool {
         false
     }

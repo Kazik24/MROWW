@@ -40,7 +40,9 @@ fn main() {
             ticks = arg.parse().expect("tick count or --publication/--flush-every option");
         }
     }
-    if let Some(modules) = &modules { samples = modules.len().try_into().unwrap(); }
+    if let Some(modules) = &modules {
+        samples = modules.len().try_into().unwrap();
+    }
     let program_ticks = if pm1 {
         11_752
     } else if ticks > 5_000 {
@@ -94,8 +96,11 @@ fn main() {
         let mut compiler = match module {
             Some(path) => seed.benchmark_restart_module(&world, bounds, pending, path),
             None => seed.benchmark_restart(&world, bounds, pending),
-        }.unwrap();
-        if modules.is_some() { compiler.benchmark_tick_batch(0, 0).unwrap(); }
+        }
+        .unwrap();
+        if modules.is_some() {
+            compiler.benchmark_tick_batch(0, 0).unwrap();
+        }
         compiler.try_on_use_block(cpu.origin + cpu.start).unwrap();
         for _ in 0..preparation {
             compiler.tick().unwrap();
@@ -124,7 +129,11 @@ fn main() {
         let native_state_hash = kernel_analysis.then(|| {
             let snapshot = compiler.benchmark_snapshot().unwrap();
             if let Some(expected) = &expected_snapshot {
-                assert!(&snapshot == expected, "fresh executor state differs: first word {:?}", snapshot.iter().zip(expected).position(|(a, b)| a != b));
+                assert!(
+                    &snapshot == expected,
+                    "fresh executor state differs: first word {:?}",
+                    snapshot.iter().zip(expected).position(|(a, b)| a != b)
+                );
             } else {
                 expected_snapshot = Some(snapshot.clone());
             }

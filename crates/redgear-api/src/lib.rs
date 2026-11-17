@@ -4,7 +4,7 @@ use mchprs_core::headless::{CompilerOptions, Input, Session};
 use mchprs_core::redpilator::TaskMonitor;
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::sync::{
     Arc, Mutex,
@@ -521,14 +521,31 @@ fn spawn_worker(session: String, request: Value, begin: Begin, output: Arc<Outpu
         thread,
     }
 }
-fn read_request(reader: &mut BufReader<TcpStream>) -> std::io::Result<Option<Value>> {
+fn read_request(reader: &mut BufReader<TcpStream>, timeout: Duration) -> std::io::Result<Option<Value>> {
+    let deadline = std::time::Instant::now() + timeout;
     let mut line = Vec::new();
-    let count = reader.by_ref().take(MAX_MESSAGE + 1).read_until(b'\n', &mut line)?;
-    if count == 0 {
-        return Ok(None);
-    }
-    if count as u64 > MAX_MESSAGE || line.last() != Some(&b'\n') {
-        return Err(std::io::Error::other("Oversized or incomplete API message"));
+    loop {
+        let remaining = deadline
+            .checked_duration_since(std::time::Instant::now())
+            .filter(|remaining| !remaining.is_zero())
+            .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::TimedOut))?;
+        reader.get_ref().set_read_timeout(Some(remaining))?;
+        let available = reader.fill_buf()?;
+        if available.is_empty() {
+            if line.is_empty() {
+                return Ok(None);
+            }
+            return Err(std::io::Error::other("Incomplete API message"));
+        }
+        let count = available.iter().position(|byte| *byte == b'\n').map_or(available.len(), |i| i + 1);
+        if line.len() as u64 + count as u64 > MAX_MESSAGE {
+            return Err(std::io::Error::other("Oversized API message"));
+        }
+        line.extend_from_slice(&available[..count]);
+        reader.consume(count);
+        if line.last() == Some(&b'\n') {
+            break;
+        }
     }
     let request: Value = serde_json::from_slice(&line)?;
     if !request.is_object() {
@@ -536,6 +553,7 @@ fn read_request(reader: &mut BufReader<TcpStream>) -> std::io::Result<Option<Val
     }
     Ok(Some(request))
 }
+
 fn serve(stream: TcpStream) -> std::io::Result<()> {
     stream.set_write_timeout(Some(Duration::from_secs(30)))?;
     let mut reader = BufReader::new(stream.try_clone()?);
@@ -547,7 +565,7 @@ fn serve(stream: TcpStream) -> std::io::Result<()> {
     let mut next_session = 1u64;
     let mut begun = false;
     let result = (|| -> std::io::Result<()> {
-        while let Some(request) = read_request(&mut reader)? {
+        while let Some(request) = read_request(&mut reader, Duration::from_secs(30))? {
             workers.retain(|_, worker| worker.alive.load(Ordering::Acquire));
             if request.get("id").is_some_and(|v| v.as_u64().is_none()) {
                 output.failure(&json!({}), None, error("invalid_request", "id must be an unsigned integer"), false);
@@ -662,4 +680,45 @@ pub fn serve_listener(listener: TcpListener) -> std::io::Result<()> {
         });
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod timeout_tests {
+    use super::*;
+
+    #[test]
+    fn silent_and_partial_messages_expire() {
+        for partial in [false, true] {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let mut peer = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+            let (stream, _) = listener.accept().unwrap();
+            if partial {
+                peer.write_all(b"{\"op\":").unwrap();
+            }
+            let mut reader = BufReader::new(stream);
+            let error = read_request(&mut reader, Duration::from_millis(50)).unwrap_err();
+            assert!(matches!(error.kind(), std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock));
+        }
+    }
+    #[test]
+    fn trickling_bytes_does_not_extend_the_request_deadline() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let mut peer = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let (stream, _) = listener.accept().unwrap();
+        let writer = std::thread::spawn(move || {
+            for _ in 0..100 {
+                if peer.write_all(b" ").is_err() {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        });
+        let mut reader = BufReader::new(stream);
+        let started = std::time::Instant::now();
+        let error = read_request(&mut reader, Duration::from_millis(100)).unwrap_err();
+        assert!(matches!(error.kind(), std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock));
+        assert!(started.elapsed() < Duration::from_secs(1));
+        reader.get_ref().shutdown(Shutdown::Both).unwrap();
+        writer.join().unwrap();
+    }
 }

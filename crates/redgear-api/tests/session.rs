@@ -554,3 +554,28 @@ fn pipelined_close_answers_every_outstanding_request_once() {
     assert_ne!(next, session);
     assert_eq!(finished["backend"], "interpreter");
 }
+
+#[test]
+fn silent_clients_expire_and_release_all_connection_slots() {
+    let (server, first) = Server::start();
+    let mut idle = vec![first, server.connect(), server.connect(), server.connect()];
+    for client in &mut idle {
+        client.get_ref().set_read_timeout(Some(Duration::from_secs(40))).unwrap();
+        assert_eq!(client.read_line(&mut String::new()).unwrap(), 0);
+    }
+    // Closing the socket and releasing the admission lease happen on the same worker.
+    let deadline = Instant::now() + Duration::from_secs(5);
+    loop {
+        let mut client = server.connect();
+        let mut line = String::new();
+        if writeln!(client.get_mut(), "{}", json!({"op":"describe", "protocol":4, "id":1})).is_ok()
+            && client.read_line(&mut line).is_ok_and(|count| count > 0)
+        {
+            let response: Value = serde_json::from_str(&line).unwrap();
+            assert_eq!(response["type"], "manifest");
+            break;
+        }
+        assert!(Instant::now() < deadline, "connection slots were not released");
+        thread::sleep(Duration::from_millis(20));
+    }
+}

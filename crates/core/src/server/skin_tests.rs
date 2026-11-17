@@ -52,3 +52,32 @@ fn configuration_skin_settings_reach_the_player_before_the_first_spawn() {
         }
     }
 }
+
+#[test]
+fn login_completion_leaves_play_packets_with_the_transferred_player() {
+    let (network, _peer, incoming) = mchprs_network::test_support::handshaking_connection_with_sender(false).unwrap();
+    let (plot_sender, receiver) = mpsc::channel();
+    let mut server = MinecraftServer {
+        waveform_api: None,
+        network,
+        broadcaster: Bus::new(4),
+        receiver,
+        plot_sender,
+        online_players: Default::default(),
+        running_plots: Vec::new(),
+        whitelist: None,
+        pending_redbox: Default::default(),
+    };
+    let client = &mut server.network.handshaking_clients[0];
+    client.username = Some("BatchTest".into());
+    client.uuid = Some(rand::random());
+    client.protocol_phase = 3;
+    incoming.send(Box::new(SConfigurationFinished)).unwrap();
+    incoming.send(Box::new(mchprs_network::packets::serverbound::SUnknown)).unwrap();
+    server.update();
+    assert!(server.network.handshaking_clients.is_empty());
+    let Message::PlayerJoined(mut player) = server.receiver.try_recv().unwrap() else {
+        panic!("missing player");
+    };
+    assert_eq!(player.client.receive_packets().len(), 1);
+}

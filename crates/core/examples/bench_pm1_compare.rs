@@ -2,12 +2,12 @@
 #[path = "../test_support/cpus.rs"]
 #[allow(dead_code)]
 mod cpus;
-#[path = "../test_support/pm1.rs"]
-#[allow(dead_code)]
-mod pm1;
 #[cfg(windows)]
 #[path = "../test_support/image_crossover.rs"]
 mod image_crossover;
+#[path = "../test_support/pm1.rs"]
+#[allow(dead_code)]
+mod pm1;
 
 use mchprs_core::redpilator::{CompilerOptions, PublicationMode};
 use serde_json::{Value, json};
@@ -29,9 +29,14 @@ fn main() {
     assert!(["llvm", "rust", "interpreter"].contains(&backend.as_str()));
     let ticks: u32 = args.get(3).map_or(protocol.ticks, |s| s.parse().unwrap());
     let mut samples: u32 = args.get(4).map_or(3, |s| s.parse().unwrap());
-    let modules: Option<Vec<PathBuf>> = args.iter().find_map(|arg| arg.strip_prefix("--modules="))
+    let modules: Option<Vec<PathBuf>> = args
+        .iter()
+        .find_map(|arg| arg.strip_prefix("--modules="))
         .map(|path| serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap());
-    if let Some(modules) = &modules { assert_eq!(backend, "llvm"); samples = modules.len().try_into().unwrap(); }
+    if let Some(modules) = &modules {
+        assert_eq!(backend, "llvm");
+        samples = modules.len().try_into().unwrap();
+    }
     assert!(ticks > 0 && samples > 0);
     let relaxed = args.iter().any(|arg| arg == "--relaxed");
     let until_idle = args.iter().any(|arg| arg == "--until-idle");
@@ -67,7 +72,8 @@ fn main() {
             match module {
                 Some(path) => seed.benchmark_restart_module(&world, bounds, pending, path),
                 None => seed.benchmark_restart(&world, bounds, pending),
-            }.unwrap()
+            }
+            .unwrap()
         });
         if modules.is_some() {
             // Identical clock input keeps unlimited command-window counters comparable, not masked.
@@ -113,16 +119,25 @@ fn main() {
         let native_state_hash = if backend == "llvm" && std::env::var_os("MCHPRS_ENGINE_KERNEL_ANALYSIS").is_some() {
             let snapshot = compiler.as_ref().unwrap().benchmark_snapshot().unwrap();
             if let Some(expected) = &expected_snapshot {
-                assert!(&snapshot == expected, "module state differs: first word {:?}", snapshot.iter().zip(expected).position(|(a, b)| a != b));
+                assert!(
+                    &snapshot == expected,
+                    "module state differs: first word {:?}",
+                    snapshot.iter().zip(expected).position(|(a, b)| a != b)
+                );
+            } else {
+                expected_snapshot = Some(snapshot.clone());
             }
-            else { expected_snapshot = Some(snapshot.clone()); }
             let bytes: Vec<_> = snapshot.iter().flat_map(|word| word.to_le_bytes()).collect();
             Some(format!("{:x}", Sha256::digest(&bytes)))
-        } else { None };
+        } else {
+            None
+        };
         // Short alignment screens still finish the unchanged protocol outside timing.
         if modules.is_some() {
             assert!(completed <= protocol.ticks);
-            for _ in completed..protocol.ticks { compiler.as_mut().unwrap().tick().unwrap(); }
+            for _ in completed..protocol.ticks {
+                compiler.as_mut().unwrap().tick().unwrap();
+            }
         }
         if until_idle {
             assert_eq!(quiet_ticks, 16, "PM1 did not halt within the requested maximum tick count");

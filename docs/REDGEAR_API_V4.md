@@ -12,7 +12,7 @@ Clients and servers must buffer socket reads until a complete newline-terminated
 
 Examples below show one JSON object per line. `<base64>` represents actual Base64-encoded bytes.
 
-The current adapter limits each message to 16 MiB, including its terminating newline. A schematic can contain at most 30,000 cells and span at most 64 blocks along each axis. An `advance` request accepts at most 64 inputs and 1,000,000 game ticks. Each connection can own at most four sessions, and the service accepts at most four simultaneous connections. Excess connections are closed; rejected requests on an established connection receive an error.
+The current adapter limits each message to 16 MiB, including its terminating newline. A schematic can contain at most 30,000 cells and span at most 64 blocks along each axis. An `advance` request accepts at most 64 inputs and 1,000,000 game ticks. Each connection can own at most four sessions, and the service accepts at most four simultaneous connections. Excess connections are closed; rejected requests on an established connection receive an error. Each request must complete within 30 seconds, measured from the start of the next read (including idle time). Expiry closes the connection and cancels its sessions; clients should send periodic `describe` requests while idle or waiting for compilation.
 
 ## Requests, sessions and identifiers
 

@@ -1,6 +1,7 @@
 name: Test
 
 on:
+  workflow_dispatch:
   push:
     branches: [master, piston, 'port/**']
   pull_request:
@@ -8,6 +9,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  MCHPRS_LLVM_CLANG: clang-19
+  MCHPRS_LLVM_LINKER: ld.lld-19
   CARGO_PROFILE_DEV_DEBUG: '0'
   CARGO_PROFILE_TEST_DEBUG: '0'
 
@@ -23,16 +26,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt
+          components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - name: Install native compiler
-        run: sudo apt-get update && sudo apt-get install -y clang lld
+        run: sudo apt-get update && sudo apt-get install -y clang-19 lld-19
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Check workspace
         run: cargo check --workspace --locked
-      - name: Basic library tests
-        run: cargo test --locked --lib -p mchprs_blocks -p mchprs_utils
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked
+      - name: Basic and boundary library tests
+        run: cargo test --locked --lib -p mchprs_blocks -p mchprs_utils -p mchprs_network -p mchprs_save_data -p mroww-redgear-api
+      - name: RedGear session regression tests
+        run: cargo test --locked -p mroww-redgear-api --test session
+      - name: Server admission regression tests
+        run: cargo test --locked -p mchprs_core --lib -- server::
       - name: Plot and interpreter regression tests
         run: |
           cargo test --locked -p mchprs_core --lib -- plot::client_sync_tests::
@@ -42,7 +51,7 @@ jobs:
           cargo test --locked -p mchprs_core --lib -- plot::redpilator_compilation::
       - name: Redpilator and scratch regressions
         run: |
-          # Exclude unresolved fixture, oracle, and executor-cache regressions from the basic pipeline.
+          # Known exclusions and reproduction commands: docs/TEST_EXCLUSIONS.md.
           cargo test --locked -p mchprs_core --lib -- redpilator:: \
             --skip adder11bit_reference_manifest_acceptance \
             --skip adder1bit_reference_manifest_arithmetic \
@@ -64,3 +73,32 @@ jobs:
         run: |
           python tools/generate_mc_data.py
           git diff --exit-code -- mc_data/1.21.5/registries.bin mc_data/1.21.5/tags.bin
+
+  portable-bench:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --locked -p mchprs_core --all-targets --features plot-bench
+
+  excluded-regressions:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        regression:
+          - adder11bit_reference_manifest_acceptance
+          - adder1bit_reference_manifest_arithmetic
+          - counter_basic_reference_manifest_execution
+          - focused_test_samples_match_supported_oracles
+          - redstonedb_levers_match_interpreter
+          - executor_cache_resumes_pending_motion_and_effects_like_uninterrupted_execution
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: sudo apt-get update && sudo apt-get install -y clang-19 lld-19
+      - run: cargo test --locked -p mchprs_core --lib ${{ matrix.regression }} -- --nocapture
