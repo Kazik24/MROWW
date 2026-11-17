@@ -88,6 +88,14 @@ impl Compiler {
     }
 
     #[cfg(feature = "plot-bench")]
+    pub fn benchmark_tick_batch_production(&mut self, count: u32) -> Result<(), ExecutionError> {
+        let (completed, result) = self.tick_batch(count);
+        result?;
+        assert_eq!(completed, count);
+        Ok(())
+    }
+
+    #[cfg(feature = "plot-bench")]
     pub fn benchmark_tick_batch(&mut self, count: u32, mode: u32) -> Result<(), ExecutionError> {
         self.llvm_runtime
             .as_mut()

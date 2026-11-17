@@ -25,7 +25,8 @@ impl Compiler {
                 redstone::update(block, world, pos, None);
             });
         }
-        self.options = Default::default();
+        // Reset releases publication arenas as well as execution state.
+        *self = Self::default();
         Ok(())
     }
 
@@ -51,5 +52,24 @@ impl Compiler {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn explicit_reset_releases_publication_capacity() {
+        let mut world = crate::plot::PlotWorld::from_chunks(0, 0, Vec::new(), Default::default());
+        let mut compiler = Compiler::default();
+        compiler.publication_positions.reserve(1024);
+        compiler.retired_motions.reserve(1024);
+        compiler.host_motion_indices.reserve(1024);
+        compiler.try_reset(&mut world, (BlockPos::new(0, 0, 0), BlockPos::new(0, 0, 0))).unwrap();
+        assert!(!compiler.is_active());
+        assert_eq!(compiler.publication_positions.capacity(), 0);
+        assert_eq!(compiler.retired_motions.capacity(), 0);
+        assert_eq!(compiler.host_motion_indices.capacity(), 0);
     }
 }

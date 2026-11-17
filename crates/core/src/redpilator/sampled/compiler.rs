@@ -18,7 +18,7 @@ pub(crate) fn compile_monitored(
     entry: ScratchEntry,
     monitor: Option<&TaskMonitor>,
 ) -> Result<Program, ScratchError> {
-    compile_monitored_with_source_cache(world, bounds, entry, monitor, None)
+    compile_monitored_with_source_cache(world, bounds, entry, monitor, None, false)
 }
 
 /// Compile a world snapshot into an indexed redstone program.
@@ -33,6 +33,7 @@ pub(crate) fn compile_monitored_with_source_cache(
     entry: ScratchEntry,
     monitor: Option<&TaskMonitor>,
     source_cache: Option<&SourceOrderCache>,
+    ignore_command_blocks: bool,
 ) -> Result<Program, ScratchError> {
     let mut phases = CompilePhases::new(monitor);
     let context = passes::Context {
@@ -40,6 +41,7 @@ pub(crate) fn compile_monitored_with_source_cache(
         bounds,
         entry: &entry,
         monitor,
+        ignore_command_blocks,
     };
 
     let passes::parse::ParsedCircuit { scratch, inventory } = passes::parse::run(&context, &mut phases)?;

@@ -236,6 +236,32 @@ fn hash_file(hash: &mut Sha256, path: &Path) -> io::Result<()> {
     }
 }
 
+fn stop_tool(child: &mut std::process::Child) {
+    #[cfg(target_os = "linux")]
+    {
+        // The unreaped child owns this process group; include Clang's cc1/linker descendants.
+        let _ = Command::new("/bin/sh")
+            .args(["-c", "kill -KILL -$1", "stop-native-compiler", &child.id().to_string()])
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        let _ = Command::new("taskkill.exe")
+            .args(["/PID", &child.id().to_string(), "/T", "/F"])
+            .creation_flags(0x08000000)
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
+    }
+    let _ = child.kill();
+    let _ = child.wait();
+}
+
 /// Run a native build tool and report its diagnostics.
 ///
 /// Inputs: The executable path, argument list, working directory, log name and optional monitor.
@@ -256,6 +282,11 @@ fn run_tool(tool: &Path, args: &[OsString], directory: &Path, log: &str, monitor
         use std::os::windows::process::CommandExt;
         command.creation_flags(0x08000000);
     }
+    #[cfg(target_os = "linux")]
+    {
+        use std::os::unix::process::CommandExt;
+        command.process_group(0);
+    }
     let mut child = command.spawn().map_err(|error| format!("cannot run {}: {error}", tool.display()))?;
     loop {
         match child.try_wait() {
@@ -268,15 +299,13 @@ fn run_tool(tool: &Path, args: &[OsString], directory: &Path, log: &str, monitor
                 return Err(format!("{} failed ({status}); {}: {text}", tool.display(), path.display()));
             }
             Err(error) => {
-                let _ = child.kill();
-                let _ = child.wait();
+                stop_tool(&mut child);
                 return Err(error.to_string());
             }
             Ok(None) => {}
         }
         if monitor.is_some_and(TaskMonitor::cancelled) {
-            let _ = child.kill();
-            let _ = child.wait();
+            stop_tool(&mut child);
             return Err("LLVM compilation cancelled".to_owned());
         }
         std::thread::sleep(Duration::from_millis(10));
@@ -289,12 +318,13 @@ fn run_tool(tool: &Path, args: &[OsString], directory: &Path, log: &str, monitor
 ///
 /// Honor an explicit library path; otherwise verify cache ownership, hash bundled sources/tool
 /// binaries/flags, build the missing module and retain its guarded path.
-pub(super) fn module_path(program: Option<&super::generated::GeneratedProgram>, monitor: Option<&TaskMonitor>) -> Result<ModulePath, String> {
+pub(super) fn module_path(program: Option<super::generated::GeneratedProgram>, monitor: Option<&TaskMonitor>) -> Result<ModulePath, String> {
     if let Some(path) = std::env::var_os("MCHPRS_LLVM_DLL") {
         let path = PathBuf::from(path).canonicalize().map_err(|error| format!("MCHPRS_LLVM_DLL: {error}"))?;
         return Ok(ModulePath { path, _guard: None });
     }
-    let identity = program.map(|program| program.identity);
+    let identity = program.as_ref().map(|program| program.identity);
+    let program_bytes = program.as_ref().map(|program| program.encoded.blob.len());
     let cache = cache()?;
     let mut module = cache.module.lock().map_err(|_| "LLVM cache lock poisoned".to_owned())?;
     validate_owned_root(&cache.path).map_err(|error| error.to_string())?;
@@ -358,7 +388,7 @@ pub(super) fn module_path(program: Option<&super::generated::GeneratedProgram>, 
         fs::write(directory.join(name), data).map_err(|e| e.to_string())?;
     }
     let emission_started = Instant::now();
-    if let Some(program) = program {
+    if let Some(program) = &program {
         program.write(&directory, monitor)?;
     }
     let emission_ms = emission_started.elapsed().as_secs_f64() * 1000.0;
@@ -366,6 +396,8 @@ pub(super) fn module_path(program: Option<&super::generated::GeneratedProgram>, 
     if program.is_some() {
         args.push(OsString::from("-DMCHPRS_EMBEDDED_PROGRAM=1"));
     }
+    // Clang needs emitted files, not the host encoding; release it before compiler peak memory.
+    drop(program);
     let started = Instant::now();
     #[cfg(windows)]
     let filename = {
@@ -395,7 +427,7 @@ pub(super) fn module_path(program: Option<&super::generated::GeneratedProgram>, 
     };
     let path = directory.join(filename);
     let version = Command::new(&clang).arg("--version").output().map_err(|e| e.to_string())?;
-    let manifest = serde_json::json!({"key":key,"embedded_program":program.is_some(),"program_identity":identity,"program_bytes":program.map(|p|p.encoded.blob.len()),"clang":clang,"linker":linker,"flags":args,"target_arch":std::env::consts::ARCH,
+    let manifest = serde_json::json!({"key":key,"embedded_program":identity.is_some(),"program_identity":identity,"program_bytes":program_bytes,"clang":clang,"linker":linker,"flags":args,"target_arch":std::env::consts::ARCH,
         "target_os":std::env::consts::OS,"compiler_version":String::from_utf8_lossy(&version.stdout),
         "emission_ms":emission_ms,"build_ms":started.elapsed().as_secs_f64()*1000.0,"module_bytes":fs::metadata(&path).map_err(|e|e.to_string())?.len()});
     fs::write(
@@ -418,6 +450,42 @@ mod tests {
             std::process::id(),
             std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
         ))
+    }
+
+    #[test]
+    #[cfg(target_os = "linux")]
+    fn cancelling_native_build_stops_its_descendants() {
+        let root = temp_root("cancel-group");
+        fs::create_dir(&root).unwrap();
+        let monitor = std::sync::Arc::new(TaskMonitor::default());
+        let worker_monitor = monitor.clone();
+        let directory = root.clone();
+        let worker = std::thread::spawn(move || {
+            run_tool(
+                Path::new("/bin/sh"),
+                &["-c", "sleep 30 & echo $! > child.pid; wait"].map(OsString::from),
+                &directory,
+                "compile.log",
+                Some(&worker_monitor),
+            )
+        });
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while !root.join("child.pid").is_file() {
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        let pid: u32 = fs::read_to_string(root.join("child.pid")).unwrap().trim().parse().unwrap();
+        monitor.cancel();
+        assert!(worker.join().unwrap().unwrap_err().contains("cancelled"));
+        loop {
+            let state = fs::read_to_string(format!("/proc/{pid}/stat"));
+            if state.as_ref().is_err() || state.unwrap().split_whitespace().nth(2) == Some("Z") {
+                break;
+            }
+            assert!(Instant::now() < deadline, "native child survived cancellation");
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

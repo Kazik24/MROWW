@@ -33,6 +33,8 @@ pub struct CompilerOptions {
     pub io_only: bool,
     /// Request the experimental LLVM backend.
     pub llvm: bool,
+    /// Compile command blocks as inert geometry in the LLVM backend.
+    pub ignore_command_blocks: bool,
     /// Skip wire-shape replay; LLVM also defers wire power when wires have no electrical outputs.
     pub relaxed_mode: bool,
     /// Override the build's default publication scope.
@@ -67,6 +69,7 @@ impl CompilerOptions {
             if option.starts_with("--") {
                 match option {
                     "--llvm" => options.llvm = true,
+                    "--ignore-command-blocks" => options.ignore_command_blocks = true,
                     "--relaxed" => options.relaxed_mode = true,
                     "--publish-all" | "--publish-redstone" | "--publish-io" => {
                         let mode = PublicationMode::parse(option.strip_prefix("--publish-").unwrap()).unwrap();
@@ -82,6 +85,9 @@ impl CompilerOptions {
             }
         }
         options.io_only = options.publication == Some(PublicationMode::Io);
+        if options.ignore_command_blocks && !options.llvm {
+            return Err("--ignore-command-blocks requires --llvm".into());
+        }
         Ok(options)
     }
 }

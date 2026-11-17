@@ -11,6 +11,72 @@ use mchprs_blocks::{
 use mchprs_world::TickPriority;
 
 #[test]
+fn ignored_command_blocks_keep_geometry_and_static_comparator_outputs() {
+    use mchprs_blocks::block_entities::CommandBlockEntity;
+    use mchprs_blocks::blocks::{ComparatorMode, RedstoneComparator};
+
+    let mut world = host();
+    let command = BlockPos::new(10, 9, 10);
+    let lever = command.offset(BlockFace::Top);
+    let lamp = command.offset(BlockFace::East);
+    let comparator = command.offset(BlockFace::South);
+    world.set_block(command, Block::from_name("command_block").unwrap());
+    let entity = BlockEntity::CommandBlock(Box::new(CommandBlockEntity {
+        command: "say should not execute".into(),
+        success_count: 7,
+        ..Default::default()
+    }));
+    world.set_block_entity(command, entity.clone());
+    world.set_block(
+        lever,
+        Block::Lever {
+            lever: Lever::new(LeverFace::Floor, BlockDirection::North, false),
+        },
+    );
+    world.set_block(lamp, Block::RedstoneLamp { lit: false });
+    world.set_block(
+        comparator,
+        Block::RedstoneComparator {
+            comparator: RedstoneComparator {
+                facing: BlockDirection::North,
+                mode: ComparatorMode::Compare,
+                powered: false,
+            },
+        },
+    );
+    world.set_block_entity(comparator, BlockEntity::Comparator { output_strength: 0 });
+    let program = super::compiler::compile_monitored_with_source_cache(
+        &world,
+        (BlockPos::new(7, 7, 7), BlockPos::new(14, 13, 14)),
+        ScratchEntry {
+            scheduled: vec![],
+            piston: world.piston_state().clone(),
+        },
+        None,
+        None,
+        true,
+    )
+    .unwrap();
+    assert!(!program.component_indices.contains_key(&command));
+    assert!(program.command_blocks.is_empty());
+    assert!(!program.operations.iter().any(|op| matches!(op, Operation::UpdateCommandBlock(_))));
+    assert_eq!(program.geometry_indices[&command], world.get_block(command));
+    assert_eq!(program.comparators[0].rear_override, Some(super::program::ComparatorInput::Static(7)));
+    let mut runtime = program.start();
+    runtime.use_control(lever).unwrap();
+    for _ in 0..4 {
+        runtime.tick().unwrap();
+    }
+    assert_eq!(runtime.project(lamp), Some(Block::RedstoneLamp { lit: true }));
+    assert!(runtime.command_emissions.is_empty());
+    let Some(BlockEntity::CommandBlock(stored)) = world.get_block_entity(command) else {
+        panic!("command data lost")
+    };
+    let BlockEntity::CommandBlock(expected) = entity else { unreachable!() };
+    assert_eq!(stored, &expected);
+}
+
+#[test]
 #[ignore = "large saved-plot regression; run explicitly"]
 fn chungus_block_trace_matches_native() {
     #[path = "../../../../test_support/chungus.rs"]

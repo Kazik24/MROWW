@@ -313,7 +313,7 @@ impl ScratchWorld {
         }
         let workers = rayon::current_num_threads().min((jobs.len() / 128).max(1));
         if workers == 1 {
-            return jobs
+            let result = jobs
                 .iter()
                 .map(|job| {
                     self.revert();
@@ -330,6 +330,8 @@ impl ScratchWorld {
                     Ok(result)
                 })
                 .collect();
+            crate::redstone::wire::invalidate_turbo_cache();
+            return result;
         }
         let next = AtomicUsize::new(0);
         let stopped = AtomicBool::new(false);
@@ -369,6 +371,8 @@ impl ScratchWorld {
                     }
                     results.push((index, result));
                 }
+                // Pool threads outlive this compilation; do not retain its wire-walk arenas.
+                crate::redstone::wire::invalidate_turbo_cache();
                 results
             })
             .collect();

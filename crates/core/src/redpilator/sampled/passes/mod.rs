@@ -29,6 +29,7 @@ pub(super) struct Context<'a, W: World> {
     pub(super) entry: &'a ScratchEntry,
     /// cancellation handle for long-running compilation work.
     pub(super) monitor: Option<&'a TaskMonitor>,
+    pub(super) ignore_command_blocks: bool,
 }
 
 pub(super) struct Inventory {

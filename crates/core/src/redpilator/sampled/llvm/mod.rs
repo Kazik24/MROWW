@@ -12,6 +12,7 @@
 //!   worker threads. The batch clock callback only reads a separate immutable clock context;
 //!   it cannot access or reenter the runtime. Mutating calls require an exclusive runtime borrow;
 //!   shared calls only read native state. Output buffers are separate writable allocations.
+//!
 //! Each SAFETY comment gives the remaining argument/buffer proof for its individual call.
 use super::{
     ScratchError,
@@ -246,12 +247,11 @@ impl LlvmRuntime {
         #[cfg(feature = "plot-bench")]
         let library = match module {
             Some(path) => Library::benchmark_load(path, &generated)?,
-            None => Library::load_program(&generated, monitor)?,
+            None => Library::load_program(generated, monitor)?,
         };
         #[cfg(not(feature = "plot-bench"))]
-        let library = Library::load_program(&generated, monitor)?;
+        let library = Library::load_program(generated, monitor)?;
         let state = library.create_embedded_state(initial_ticks.entries.len() as u32)?;
-        drop(generated);
         let sources = program
             .sources
             .iter()

@@ -16,6 +16,7 @@ struct CompileStatus {
 pub struct TaskMonitor {
     /// shared cancellation flag observed by compilation workers.
     cancelled: AtomicBool,
+    memory_exhausted: AtomicBool,
     status: Mutex<CompileStatus>,
     deadline: Option<Instant>,
 }
@@ -26,7 +27,7 @@ impl TaskMonitor {
     }
 
     pub(crate) fn budget_expired(&self) -> bool {
-        !self.cancelled.load(Ordering::Relaxed) && self.deadline.is_some_and(|deadline| Instant::now() >= deadline)
+        !self.cancelled.load(Ordering::Acquire) && self.deadline.is_some_and(|deadline| Instant::now() >= deadline)
     }
 
     pub(crate) fn set_phase(&self, phase: &'static str) {
@@ -82,18 +83,40 @@ impl TaskMonitor {
         text
     }
 
+    #[cfg(target_os = "linux")]
+    pub(super) fn cancel_for_memory(&self) {
+        self.memory_exhausted.store(true, Ordering::Relaxed);
+        tracing::warn!("Redpilator compilation cancelled to preserve server memory headroom");
+        self.cancel();
+    }
+
+    pub(crate) fn memory_exhausted(&self) -> bool {
+        self.memory_exhausted.load(Ordering::Relaxed)
+    }
+
     pub fn cancel(&self) {
-        self.cancelled.store(true, Ordering::Relaxed);
+        self.cancelled.store(true, Ordering::Release);
     }
 
     pub fn cancelled(&self) -> bool {
-        self.cancelled.load(Ordering::Relaxed) || self.budget_expired()
+        self.cancelled.load(Ordering::Acquire) || self.budget_expired()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    #[cfg(target_os = "linux")]
+    fn memory_refusal_is_distinct_from_manual_cancellation_and_deadlines() {
+        let monitor = TaskMonitor::default();
+        assert!(!monitor.memory_exhausted());
+        monitor.cancel_for_memory();
+        assert!(monitor.cancelled());
+        assert!(monitor.memory_exhausted());
+        assert!(!monitor.budget_expired());
+    }
 
     #[test]
     fn deadline_cancels_work_without_confusing_manual_cancellation() {

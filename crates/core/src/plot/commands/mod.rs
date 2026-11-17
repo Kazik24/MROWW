@@ -1521,6 +1521,8 @@ mod security_tests {
         let options = CompilerOptions::parse("--publish-io").unwrap();
         assert!(options.io_only && !options.update);
         assert!(CompilerOptions::parse("--llvm").unwrap().llvm);
+        assert!(CompilerOptions::parse("--ignore-command-blocks").is_err());
+        assert!(CompilerOptions::parse("--ignore-command-blocks --llvm").unwrap().ignore_command_blocks);
         assert!(!CompilerOptions::default().relaxed_mode);
         let relaxed = CompilerOptions::parse("--relaxed").unwrap();
         assert!(relaxed.relaxed_mode && !relaxed.llvm);
@@ -1562,11 +1564,25 @@ mod security_tests {
         for (text, expected) in [
             (
                 "/rp compile --",
-                vec!["--publish-all", "--publish-redstone", "--publish-io", "--llvm", "--relaxed"],
+                vec![
+                    "--publish-all",
+                    "--publish-redstone",
+                    "--publish-io",
+                    "--llvm",
+                    "--relaxed",
+                    "--ignore-command-blocks",
+                ],
             ),
             (
                 "/redpilator c -",
-                vec!["--publish-all", "--publish-redstone", "--publish-io", "--llvm", "--relaxed"],
+                vec![
+                    "--publish-all",
+                    "--publish-redstone",
+                    "--publish-io",
+                    "--llvm",
+                    "--relaxed",
+                    "--ignore-command-blocks",
+                ],
             ),
             ("/rp publish ", vec!["all", "redstone", "io", "auto"]),
             ("/visual publish ", vec!["all", "redstone", "io", "auto"]),

@@ -1,0 +1,887 @@
+{
+  "schema_version": 1,
+  "experiment": "Compile PM1 command blocks out of LLVM execution",
+  "date": "2026-11-17",
+  "command": "/rp compile --llvm --ignore-command-blocks",
+  "fixture": "test_data/pm1_redpilator.schem",
+  "fixture_sha256": "6957e4f9537d519e2133f0168fd25837a084a10e54d96166c72fd3dcf3bb8939",
+  "workload": {
+    "lamps": 1452,
+    "ram_pairs": 1792,
+    "ticks": 12070,
+    "preparation_ticks": 0,
+    "start_presses": 1,
+    "command_blocks": 60,
+    "enabled_messages": 1534,
+    "ignored_messages": 0
+  },
+  "conclusion": "No repeatable headless simulation throughput improvement was established. The one-client server medians differed by +2.47%, with overlapping sample ranges; the clear measured benefit was 98.84% less network traffic.",
+  "behavior": "Command blocks are omitted from components and retained as static, immovable geometry. Comparator reads retain captured success counts. Stored command entities are unchanged. The flag requires --llvm and is cleared on reset.",
+  "validation": {
+    "compiler_tests_passed": 294,
+    "compiler_tests_failed": 0,
+    "compiler_tests_ignored": 29,
+    "command_interface_tests_passed": 2,
+    "existing_ci_skips": [
+      "adder11bit_reference_manifest_acceptance",
+      "adder1bit_reference_manifest_arithmetic",
+      "counter_basic_reference_manifest_execution",
+      "focused_test_samples_match_supported_oracles",
+      "redstonedb_levers_match_interpreter",
+      "executor_cache_resumes_pending_motion_and_effects_like_uninterrupted_execution"
+    ],
+    "all_measured_runs_match_physical_reference": true,
+    "all_ignored_headless_runs_preserve_command_entities": true
+  },
+  "methodology": {
+    "headless": "Eight alternating pairs per session, one excluded warmup pair, single tick calls, no timed publication; main thread pinned to logical CPU 24. Two strict sessions and one relaxed session. Compilation, load and reset excluded. Regression tests had finished before timing began.",
+    "interval": "Exploratory 95% t interval on the mean paired log time ratio, df=7; does not capture between-machine or generated-image effects.",
+    "server": "Three samples per condition, enabled group followed by ignored group; strict LLVM, production Plot update loop, 16-tick batches, IO publication configured at 10 Hz (effective 5 Hz under the measured fast-render cap), one real compressed TCP client, complete writer barrier included. Not a paired server trial.",
+    "limits": [
+      "Single Windows workstation and one PM1 workload.",
+      "No multiplayer load or Minecraft client rendering measurements.",
+      "Removing command execution intentionally changes command-dependent circuits."
+    ]
+  },
+  "headless": {
+    "strict": {
+      "profile": "strict",
+      "enabled_tps": 4669.9887813869345,
+      "ignored_tps": 4706.19015094218,
+      "median_paired_gain": 0.42366498524895047,
+      "geometric_mean_gain": -0.9907725375536864,
+      "paired_log_t_interval_percent": [
+        -3.9799960842365687,
+        2.091509299565033
+      ],
+      "scope": "Headless LLVM, single tick calls, CPU 24, no timed publication; one warmup pair excluded; alternating paired runs. Compile, load and reset excluded.",
+      "components_enabled": 336819,
+      "components_ignored": 336759,
+      "samples": [
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 1,
+          "quiet": true,
+          "seconds": 2.5557233999999998,
+          "tps": 4722.733297351349
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 1,
+          "quiet": true,
+          "seconds": 2.5793478,
+          "tps": 4679.4775020259
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 2,
+          "quiet": true,
+          "seconds": 2.5990503,
+          "tps": 4644.004004077951
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 2,
+          "quiet": true,
+          "seconds": 2.5396638,
+          "tps": 4752.5975682293065
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 3,
+          "quiet": true,
+          "seconds": 2.6677622,
+          "tps": 4524.391266957752
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 3,
+          "quiet": true,
+          "seconds": 2.5006802,
+          "tps": 4826.686755067681
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 4,
+          "quiet": true,
+          "seconds": 2.5142097,
+          "tps": 4800.713321565819
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 4,
+          "quiet": true,
+          "seconds": 2.5161482,
+          "tps": 4797.014738639004
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 5,
+          "quiet": true,
+          "seconds": 2.7295163000000002,
+          "tps": 4422.028914060707
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 5,
+          "quiet": true,
+          "seconds": 2.698982,
+          "tps": 4472.056501303084
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 6,
+          "quiet": true,
+          "seconds": 2.5682093999999998,
+          "tps": 4699.7725341243595
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 6,
+          "quiet": true,
+          "seconds": 2.5334659999999998,
+          "tps": 4764.224189312192
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 7,
+          "quiet": true,
+          "seconds": 2.5736911,
+          "tps": 4689.762497138837
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 7,
+          "quiet": true,
+          "seconds": 2.624859,
+          "tps": 4598.342234763849
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 8,
+          "quiet": true,
+          "seconds": 2.5898295,
+          "tps": 4660.5384640185775
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 8,
+          "quiet": true,
+          "seconds": 2.7736767,
+          "tps": 4351.624686467604
+        }
+      ]
+    },
+    "strict-repeat": {
+      "profile": "strict-repeat",
+      "enabled_tps": 4658.664262533447,
+      "ignored_tps": 4706.411093077234,
+      "median_paired_gain": -0.03401875883537464,
+      "geometric_mean_gain": 0.9995139311234272,
+      "paired_log_t_interval_percent": [
+        -1.444235551877883,
+        3.503857653021973
+      ],
+      "scope": "Headless LLVM, single tick calls, CPU 24, no timed publication; one warmup pair excluded; alternating paired runs. Compile, load and reset excluded.",
+      "components_enabled": 336819,
+      "components_ignored": 336759,
+      "samples": [
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 1,
+          "quiet": true,
+          "seconds": 2.5768868,
+          "tps": 4683.9465357966055
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 1,
+          "quiet": true,
+          "seconds": 2.5654293,
+          "tps": 4704.865575519856
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 2,
+          "quiet": true,
+          "seconds": 2.6023941,
+          "tps": 4638.036952204894
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 2,
+          "quiet": true,
+          "seconds": 2.6046644,
+          "tps": 4633.994306521792
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 3,
+          "quiet": true,
+          "seconds": 2.5721852,
+          "tps": 4692.508144436878
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 3,
+          "quiet": true,
+          "seconds": 2.5522869999999998,
+          "tps": 4729.091986912131
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 4,
+          "quiet": true,
+          "seconds": 2.5807988,
+          "tps": 4676.8465639398155
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 4,
+          "quiet": true,
+          "seconds": 2.5312199,
+          "tps": 4768.451765095558
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 5,
+          "quiet": true,
+          "seconds": 2.5552483,
+          "tps": 4723.611400113249
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 5,
+          "quiet": true,
+          "seconds": 2.555737,
+          "tps": 4722.708165981085
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 6,
+          "quiet": true,
+          "seconds": 2.7136415,
+          "tps": 4447.897778685947
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 6,
+          "quiet": true,
+          "seconds": 2.5569885,
+          "tps": 4720.396669754283
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 7,
+          "quiet": true,
+          "seconds": 2.4905724,
+          "tps": 4846.275498756832
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 7,
+          "quiet": true,
+          "seconds": 2.6016747000000002,
+          "tps": 4639.31943528528
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 8,
+          "quiet": true,
+          "seconds": 2.600944,
+          "tps": 4640.6227892642055
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 8,
+          "quiet": true,
+          "seconds": 2.6802472,
+          "tps": 4503.315962796267
+        }
+      ]
+    },
+    "relaxed": {
+      "profile": "relaxed",
+      "enabled_tps": 6684.821282521455,
+      "ignored_tps": 6822.774421017356,
+      "median_paired_gain": 2.419051507195369,
+      "geometric_mean_gain": 0.45026635259923736,
+      "paired_log_t_interval_percent": [
+        -5.039076164759475,
+        6.256927615984089
+      ],
+      "scope": "Headless LLVM, single tick calls, CPU 24, no timed publication; one warmup pair excluded; alternating paired runs. Compile, load and reset excluded.",
+      "components_enabled": 336819,
+      "components_ignored": 336759,
+      "samples": [
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 1,
+          "quiet": true,
+          "seconds": 1.8518147,
+          "tps": 6517.930762726962
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 1,
+          "quiet": true,
+          "seconds": 1.829627,
+          "tps": 6596.9730442325135
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 2,
+          "quiet": true,
+          "seconds": 1.8074751999999998,
+          "tps": 6677.823297381896
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 2,
+          "quiet": true,
+          "seconds": 1.7489588999999999,
+          "tps": 6901.248508469811
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 3,
+          "quiet": true,
+          "seconds": 1.7721998,
+          "tps": 6810.744477005358
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 3,
+          "quiet": true,
+          "seconds": 1.8736735,
+          "tps": 6441.890756313734
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 4,
+          "quiet": true,
+          "seconds": 1.7923040000000001,
+          "tps": 6734.348637284746
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 4,
+          "quiet": true,
+          "seconds": 1.7659503,
+          "tps": 6834.846937651642
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 5,
+          "quiet": true,
+          "seconds": 1.7239708999999999,
+          "tps": 7001.278269836226
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 5,
+          "quiet": true,
+          "seconds": 1.8036908999999999,
+          "tps": 6691.833950040997
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 6,
+          "quiet": true,
+          "seconds": 1.8681959,
+          "tps": 6460.778551114474
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 6,
+          "quiet": true,
+          "seconds": 1.7306503,
+          "tps": 6974.257017723338
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 7,
+          "quiet": true,
+          "seconds": 1.8209587,
+          "tps": 6628.376579875205
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 7,
+          "quiet": true,
+          "seconds": 1.7396089,
+          "tps": 6938.34114093116
+        },
+        {
+          "ignore_command_blocks": false,
+          "messages": 1534,
+          "outputs_match_reference": true,
+          "pair": 8,
+          "quiet": true,
+          "seconds": 1.7882532,
+          "tps": 6749.603467786329
+        },
+        {
+          "ignore_command_blocks": true,
+          "messages": 0,
+          "outputs_match_reference": true,
+          "pair": 8,
+          "quiet": true,
+          "seconds": 2.0393383,
+          "tps": 5918.586435610022
+        }
+      ]
+    }
+  },
+  "server": {
+    "timing_breakdown": [
+      {
+        "condition": "server-enabled",
+        "samples": [
+          {
+            "sample": 1,
+            "engine_seconds": 2.8286317,
+            "plot_update_seconds": 2.8499955,
+            "simulation_section_percent": 99.25039179886424,
+            "projection_seconds": 0.0054016,
+            "collection_seconds": 0.0021328,
+            "enqueue_seconds": 0.0001677,
+            "other_plot_seconds": 0.0136617,
+            "effective_visual_hz": 5,
+            "maximum_visual_gap_ms": 208.49429999999998
+          },
+          {
+            "sample": 2,
+            "engine_seconds": 2.5670924,
+            "plot_update_seconds": 2.5876544,
+            "simulation_section_percent": 99.20538074945404,
+            "projection_seconds": 0.0048448,
+            "collection_seconds": 0.0017547,
+            "enqueue_seconds": 0.0001418,
+            "other_plot_seconds": 0.0138207,
+            "effective_visual_hz": 5,
+            "maximum_visual_gap_ms": 205.8462
+          },
+          {
+            "sample": 3,
+            "engine_seconds": 2.5926404,
+            "plot_update_seconds": 2.6146893,
+            "simulation_section_percent": 99.1567296351425,
+            "projection_seconds": 0.0053418,
+            "collection_seconds": 0.0019028,
+            "enqueue_seconds": 0.0001473,
+            "other_plot_seconds": 0.014657,
+            "effective_visual_hz": 5,
+            "maximum_visual_gap_ms": 207.49110000000002
+          }
+        ]
+      },
+      {
+        "condition": "server-ignored",
+        "samples": [
+          {
+            "sample": 1,
+            "engine_seconds": 2.5040267,
+            "plot_update_seconds": 2.5123756999999998,
+            "simulation_section_percent": 99.66768505204058,
+            "projection_seconds": 0.0058512,
+            "collection_seconds": 0.0018065,
+            "enqueue_seconds": 0.0001794,
+            "other_plot_seconds": 0.0005119,
+            "effective_visual_hz": 5,
+            "maximum_visual_gap_ms": 205.3889
+          },
+          {
+            "sample": 2,
+            "engine_seconds": 2.5436607,
+            "plot_update_seconds": 2.5512924999999997,
+            "simulation_section_percent": 99.70086534570225,
+            "projection_seconds": 0.0052608,
+            "collection_seconds": 0.0018006,
+            "enqueue_seconds": 0.0001566,
+            "other_plot_seconds": 0.0004138,
+            "effective_visual_hz": 5,
+            "maximum_visual_gap_ms": 202.18710000000002
+          },
+          {
+            "sample": 3,
+            "engine_seconds": 2.6942966,
+            "plot_update_seconds": 2.702048,
+            "simulation_section_percent": 99.7131287082983,
+            "projection_seconds": 0.0050722,
+            "collection_seconds": 0.0020149,
+            "enqueue_seconds": 0.0001751,
+            "other_plot_seconds": 0.0004892,
+            "effective_visual_hz": 5,
+            "maximum_visual_gap_ms": 205.2716
+          }
+        ]
+      }
+    ],
+    "enabled_median_tps": 4616.022462551992,
+    "ignored_median_tps": 4730.211208437286,
+    "enabled_median_bytes": 328423,
+    "ignored_median_bytes": 3814,
+    "median_tps_gain_percent": 2.4737476217168153,
+    "bytes_reduction_percent": 98.83869278339215,
+    "enabled": {
+      "scope": "Fixed game ticks via actual Plot update; normal wall-clock visual cadence; one real compressed TCP client. Elapsed includes final ordered writer barrier/drain; complete-state verification is untimed.",
+      "samples": [
+        {
+          "sample": 1,
+          "ignore_command_blocks": false,
+          "tps": 4234.190071003192,
+          "plot_loop_tps": 4235.0608229470545,
+          "elapsed_ms": 2850.6042,
+          "plot_loop_ms": 2850.0181,
+          "command_delivery_drain_ms": 0.0046,
+          "messages": 1534,
+          "network": {
+            "bytes": 328674,
+            "coalesced_blocks": 0,
+            "compress_seconds": 0.0007316,
+            "encode_seconds": 0.0001753,
+            "failures": 0,
+            "included_end_barrier_packets": 1,
+            "packets": 1592,
+            "queued_bytes_end": 0,
+            "write_seconds": 0.0201781
+          },
+          "received": {
+            "block_records": 684,
+            "chunk_packets": 0,
+            "moving_piston_entities": 0,
+            "packet_ids": {
+              "24": 5,
+              "72": 1,
+              "77": 42,
+              "103": 9,
+              "114": 1534
+            },
+            "packets": 1591,
+            "piston_actions": 0,
+            "piston_records": 0
+          },
+          "reference_matched": true
+        },
+        {
+          "sample": 2,
+          "ignore_command_blocks": false,
+          "tps": 4663.747477586868,
+          "plot_loop_tps": 4664.428565377899,
+          "elapsed_ms": 2588.0475,
+          "plot_loop_ms": 2587.6695999999997,
+          "command_delivery_drain_ms": 0.00019999999999999998,
+          "messages": 1534,
+          "network": {
+            "bytes": 328423,
+            "coalesced_blocks": 0,
+            "compress_seconds": 0.0006859,
+            "encode_seconds": 0.0001329,
+            "failures": 0,
+            "included_end_barrier_packets": 1,
+            "packets": 1587,
+            "queued_bytes_end": 0,
+            "write_seconds": 0.0188117
+          },
+          "received": {
+            "block_records": 636,
+            "chunk_packets": 0,
+            "moving_piston_entities": 0,
+            "packet_ids": {
+              "24": 5,
+              "72": 1,
+              "77": 37,
+              "103": 9,
+              "114": 1534
+            },
+            "packets": 1586,
+            "piston_actions": 0,
+            "piston_records": 0
+          },
+          "reference_matched": true
+        },
+        {
+          "sample": 3,
+          "ignore_command_blocks": false,
+          "tps": 4616.022462551992,
+          "plot_loop_tps": 4616.193530414328,
+          "elapsed_ms": 2614.8053,
+          "plot_loop_ms": 2614.7084,
+          "command_delivery_drain_ms": 0.0003,
+          "messages": 1534,
+          "network": {
+            "bytes": 328422,
+            "coalesced_blocks": 0,
+            "compress_seconds": 0.0006956,
+            "encode_seconds": 0.0001356,
+            "failures": 0,
+            "included_end_barrier_packets": 1,
+            "packets": 1589,
+            "queued_bytes_end": 0,
+            "write_seconds": 0.0187277
+          },
+          "received": {
+            "block_records": 630,
+            "chunk_packets": 0,
+            "moving_piston_entities": 0,
+            "packet_ids": {
+              "24": 5,
+              "72": 1,
+              "77": 39,
+              "103": 9,
+              "114": 1534
+            },
+            "packets": 1588,
+            "piston_actions": 0,
+            "piston_records": 0
+          },
+          "reference_matched": true
+        }
+      ]
+    },
+    "ignored": {
+      "scope": "Fixed game ticks via actual Plot update; normal wall-clock visual cadence; one real compressed TCP client. Elapsed includes final ordered writer barrier/drain; complete-state verification is untimed.",
+      "samples": [
+        {
+          "sample": 1,
+          "ignore_command_blocks": true,
+          "tps": 4803.410381574643,
+          "plot_loop_tps": 4804.186607822346,
+          "elapsed_ms": 2512.7980000000002,
+          "plot_loop_ms": 2512.3920000000003,
+          "command_delivery_drain_ms": 0.0015999999999999999,
+          "messages": 0,
+          "network": {
+            "bytes": 3802,
+            "coalesced_blocks": 0,
+            "compress_seconds": 0.0000701,
+            "encode_seconds": 0.0001353,
+            "failures": 0,
+            "included_end_barrier_packets": 1,
+            "packets": 53,
+            "queued_bytes_end": 0,
+            "write_seconds": 0.0018841
+          },
+          "received": {
+            "block_records": 622,
+            "chunk_packets": 0,
+            "moving_piston_entities": 0,
+            "packet_ids": {
+              "24": 5,
+              "72": 1,
+              "77": 37,
+              "103": 9
+            },
+            "packets": 52,
+            "piston_actions": 0,
+            "piston_records": 0
+          },
+          "reference_matched": true
+        },
+        {
+          "sample": 2,
+          "ignore_command_blocks": true,
+          "tps": 4730.211208437286,
+          "plot_loop_tps": 4730.910179691884,
+          "elapsed_ms": 2551.6831,
+          "plot_loop_ms": 2551.3061000000002,
+          "command_delivery_drain_ms": 0.00019999999999999998,
+          "messages": 0,
+          "network": {
+            "bytes": 3814,
+            "coalesced_blocks": 0,
+            "compress_seconds": 0.0000677,
+            "encode_seconds": 0.0001329,
+            "failures": 0,
+            "included_end_barrier_packets": 1,
+            "packets": 54,
+            "queued_bytes_end": 0,
+            "write_seconds": 0.0019439
+          },
+          "received": {
+            "block_records": 622,
+            "chunk_packets": 0,
+            "moving_piston_entities": 0,
+            "packet_ids": {
+              "24": 5,
+              "72": 1,
+              "77": 38,
+              "103": 9
+            },
+            "packets": 53,
+            "piston_actions": 0,
+            "piston_records": 0
+          },
+          "reference_matched": true
+        },
+        {
+          "sample": 3,
+          "ignore_command_blocks": true,
+          "tps": 4466.725852942951,
+          "plot_loop_tps": 4466.950340835342,
+          "elapsed_ms": 2702.203,
+          "plot_loop_ms": 2702.0672,
+          "command_delivery_drain_ms": 0.00009999999999999999,
+          "messages": 0,
+          "network": {
+            "bytes": 4248,
+            "coalesced_blocks": 0,
+            "compress_seconds": 0.0000897,
+            "encode_seconds": 0.0001729,
+            "failures": 0,
+            "included_end_barrier_packets": 1,
+            "packets": 58,
+            "queued_bytes_end": 0,
+            "write_seconds": 0.0022298
+          },
+          "received": {
+            "block_records": 718,
+            "chunk_packets": 0,
+            "moving_piston_entities": 0,
+            "packet_ids": {
+              "24": 5,
+              "72": 1,
+              "77": 42,
+              "103": 9
+            },
+            "packets": 57,
+            "piston_actions": 0,
+            "piston_records": 0
+          },
+          "reference_matched": true
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "recorded_utc": "2026-11-17T20:39:44.8000146Z",
+    "base_revision": "439cea0bb74a41f054ce9989250aef69b6f5a6bd",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "cpu": "AMD Ryzen 9 5950X 16-Core Processor            ",
+    "logical_cpu": 24,
+    "paired_samples": 8,
+    "source_and_fixture_sha256": {
+      "README.md": "b12d004e4c71860dc1d56b4efea1572d862d59ee94deca8f29c411af9f24a09a",
+      "crates/core/Cargo.toml": "2d45ae81582413c63121a060b62683979f62df9e41f5a3e41edb736cc516f8fb",
+      "crates/core/examples/bench_pm1_server.rs": "328d34701c39153303ee5ec642b7f6b5c418c42da57d8169353d27a385ab364b",
+      "crates/core/src/messages.rs": "f4b607fea894a7d6cde7e3823e22d04ce2ab08f2c185938e66035496efe8a1b9",
+      "crates/core/src/plot/commands/mod.rs": "525c2748e31f5f29ad9cc8ca4ae77f93aec31be13997aa51d92d2ec0d0bec339",
+      "crates/core/src/plot/commands/redpilator.rs": "6f159fb865f9772830ad0e36f8d6dce0825dd204f5bcbcbcd1c4ff88a9c3e5d5",
+      "crates/core/src/redpilator/compiler/compilation.rs": "51f976fc2d9ac141da326d79efa2df2968d3e6530a7531db087e67c2556758a0",
+      "crates/core/src/redpilator/options.rs": "e7dcf54d539ef33b456df683247fe947cdf5ea37808d78e1de88c01de01e9f3e",
+      "crates/core/src/redpilator/sampled/compiler.rs": "7f80982392a562f1d36af2724f72ca191f4c511312b4b7e19c23a989ca907626",
+      "crates/core/src/redpilator/sampled/passes/electrical.rs": "ac5a1e42645789028f5a08cf8cd8bafccb8b1883a4ca9e8324bf342a8708ed86",
+      "crates/core/src/redpilator/sampled/passes/mod.rs": "ead6f6dd2008c85b6644842004fbf319cf2e5b000188068ecb53e6a785b33ecd",
+      "crates/core/src/redpilator/sampled/passes/parse.rs": "1b9d0b9f3449b6a361b57bd603eef7a7a539cb46a6f10012b84a5f005e47caef",
+      "crates/core/src/redpilator/sampled/program.rs": "d50a5a8d3e512bcf07677c0b57242b3a85c811d564639831c57d2a528adb1c29",
+      "crates/core/src/redpilator/tests/cache.rs": "8f4f158865765dccc7dde5a6611417d287f93ce80647775ad1e5e695af04a6b0",
+      "crates/core/src/redpilator/tests/sampled/core.rs": "12c564dde6549e0272283f19b0158e65343eacc20808ef5233d341a20b494464",
+      "crates/core/src/redpilator/tests/sampled/source_cache.rs": "425e366a7469df12f676f5c66124d22b190742c01b1e979c2cd23a4cc3b1c854",
+      "crates/core/examples/bench_pm1_commands.rs": "9aa5d06a3f345345e34c47302a0b2a1adb93e36ef18bd0f2292b461741b5e6c1",
+      "target/release/examples/bench_pm1_commands.exe": "d28a3fe60c848ed8b65cd6ab3c8945fbfa4719b9c28fa7fd272192bc1bcdec26",
+      "target/release/examples/bench_pm1_server.exe": "aba066c47fbbbe5445d8699a2ee71d6074e9330c333b4d9b9e9bb7fd797fbdee",
+      "test_data/pm1_redpilator.schem": "6957e4f9537d519e2133f0168fd25837a084a10e54d96166c72fd3dcf3bb8939",
+      "test_data/cpu-references/pm1_redpilator_protocol.json": "84950ca81b792890a4124cbd3d338a46bc78df4cb8e95523ee2163e88329d7b0",
+      "test_data/cpu-references/pm1_redpilator_reference.json": "19087beeb2c2a257a30d1eb3c54a4092f3ae3703a3cb4508fc22e601f20c33ed"
+    }
+  },
+  "reproduce": {
+    "headless": "cargo run --release --locked -p mchprs_core --features plot-bench --example bench_pm1_commands -- <fresh-output.json> 8 [--relaxed]",
+    "server": "cargo run --release --locked -p mchprs_core --features plot-bench --example bench_pm1_server -- test_data/cpu-references/pm1_redpilator_protocol.json <fresh-output.json> llvm 12070 3 --publication=io --hz=10 --batch=16 --affinity=24 --reference=test_data/cpu-references/pm1_redpilator_reference.json [--ignore-command-blocks]",
+    "environment": "PowerShell: . ./test_data/cpu-references/redpilator-next-env.ps1 -Cache <unique-name>"
+  },
+  "raw_results": "target/pm1-command-blocks/"
+}

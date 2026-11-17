@@ -182,10 +182,13 @@ fn main() {
     let samples: u32 = args.get(4).map_or(3, |value| value.parse().unwrap());
     assert!(ticks > 0 && samples > 0);
     let relaxed = args.iter().any(|arg| arg == "--relaxed");
+    let ignore_command_blocks = args.iter().any(|arg| arg == "--ignore-command-blocks");
     let reference: Option<Value> = args
         .iter()
         .find_map(|arg| arg.strip_prefix("--reference="))
         .map(|path| serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap());
+    let kernel_control = args.iter().any(|arg| arg == "--kernel-control");
+    assert!(!kernel_control || (backend == "llvm" && protocol.is_some() && reference.is_some()));
     let selected = args.iter().find_map(|arg| arg.strip_prefix("--publication="));
     assert!(selected.is_none_or(|modes| modes.split(',').all(|mode| ["none", "io", "redstone"].contains(&mode))));
     let hz: u32 = args.iter().find_map(|arg| arg.strip_prefix("--hz=")).map_or(10, |v| v.parse().unwrap());
@@ -231,9 +234,10 @@ fn main() {
         }
     }
     let flags = format!(
-        "{} {} --publish-io",
+        "{} {} {} --publish-io",
         if backend == "llvm" { "--llvm" } else { "" },
-        if relaxed { "--relaxed" } else { "" }
+        if relaxed { "--relaxed" } else { "" },
+        if ignore_command_blocks { "--ignore-command-blocks" } else { "" }
     );
     let (_, seed, compile_elapsed) = cpus::compile_cpu_with_options(initial, cpu, CompilerOptions::parse(&flags).unwrap());
     if let Some(cpu) = args.iter().find_map(|arg| arg.strip_prefix("--affinity=")) {
@@ -256,6 +260,37 @@ fn main() {
                 .copied()
                 .filter(|mode| selected.is_none_or(|selected| selected.split(',').any(|value| value == *mode)))
             {
+                let run_kernel = || {
+                    let (mut world, bounds) = load();
+                    let mut compiler = seed
+                        .benchmark_restart(&world, bounds, world.scheduler().iter_entries().collect())
+                        .unwrap();
+                    compiler.try_on_use_block(cpu.origin + cpu.start).unwrap();
+                    let started = Instant::now();
+                    let mut remaining = ticks;
+                    while remaining != 0 {
+                        let count = if remaining < batch { 1 } else { batch };
+                        compiler.benchmark_tick_batch_production(count).unwrap();
+                        remaining -= count;
+                    }
+                    let elapsed = started.elapsed();
+                    compiler.try_reset(&mut world, bounds).unwrap();
+                    let reference = reference.as_ref().unwrap();
+                    assert_eq!(
+                        pm1::outputs(&world, protocol.as_ref().unwrap()),
+                        reference["outputs"],
+                        "kernel control physical output differs"
+                    );
+                    assert!(pm1::quiet(&world), "kernel control did not halt");
+                    let commands: Vec<_> = world.command_output().collect();
+                    if ignore_command_blocks {
+                        assert!(commands.is_empty());
+                    } else {
+                        assert_eq!(json!(commands), reference["commands"], "kernel control command output differs");
+                    }
+                    elapsed
+                };
+                let kernel_elapsed = (kernel_control && sample % 2 == 1).then(&run_kernel);
                 let (mut world, bounds) = load();
                 let mut compiler = seed
                     .benchmark_restart(&world, bounds, world.scheduler().iter_entries().collect())
@@ -337,7 +372,11 @@ fn main() {
                     assert_eq!(reference["fixture_sha256"], cpu.sha256);
                     assert_eq!(reference["ticks"], ticks);
                     assert_eq!(reference["outputs"], observed, "server-path lamp or physical RAM output differs");
-                    assert_eq!(reference["commands"], json!(commands), "server-path command output differs");
+                    if ignore_command_blocks {
+                        assert!(commands.is_empty(), "disabled command blocks emitted messages");
+                    } else {
+                        assert_eq!(reference["commands"], json!(commands), "server-path command output differs");
+                    }
                 }
                 let result = (observed.clone(), commands.clone());
                 if let Some(expected) = &expected_output {
@@ -345,7 +384,10 @@ fn main() {
                 } else {
                     expected_output = Some(result);
                 }
-                let row = json!({"cpu":cpu.name,"backend":backend,"relaxed":relaxed,"sample":sample,"publication":mode,"batch":batch,
+                let kernel_elapsed = kernel_elapsed.or_else(|| kernel_control.then(&run_kernel));
+                let row = json!({"cpu":cpu.name,"backend":backend,"relaxed":relaxed,"ignore_command_blocks":ignore_command_blocks,"sample":sample,"publication":mode,"batch":batch,
+                "kernel_control_ms":kernel_elapsed.map(|duration| duration.as_secs_f64()*1000.0),
+                "kernel_control_tps":kernel_elapsed.map(|duration| ticks as f64/duration.as_secs_f64()),
                 "ticks":ticks,"preparation_ticks":if protocol.is_some(){0}else{413},"elapsed_ms":elapsed.as_secs_f64()*1000.0,
                 "tps":ticks as f64/elapsed.as_secs_f64(),"plot_loop_tps":ticks as f64/loop_elapsed.as_secs_f64(),
                 "plot_loop_ms":loop_elapsed.as_secs_f64()*1000.0,

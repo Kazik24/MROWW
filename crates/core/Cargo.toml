@@ -36,6 +36,10 @@ required-features = ["plot-bench"]
 name = "bench_pm1_server"
 required-features = ["plot-bench"]
 
+[[example]]
+name = "bench_pm1_commands"
+required-features = ["plot-bench"]
+
 [[bench]]
 name = "bitbuffer"
 harness = false

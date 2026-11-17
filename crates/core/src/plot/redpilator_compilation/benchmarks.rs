@@ -365,3 +365,117 @@ fn compilation_cache_scenarios() {
         "interpreter output divergence; see report"
     );
 }
+
+/// Run alone inside a 6 GiB Linux cgroup with a read-only copy of the production plot.
+#[test]
+#[ignore = "ten cold production-plot compile/off cycles; requires MCHPRS_MEMORY_PLOT and LLVM tools"]
+#[cfg(target_os = "linux")]
+fn production_plot_compile_off_memory_stability() {
+    fn rss() -> u64 {
+        let status = std::fs::read_to_string("/proc/self/status").unwrap();
+        status
+            .lines()
+            .find(|line| line.starts_with("VmRSS:"))
+            .unwrap()
+            .split_whitespace()
+            .nth(1)
+            .unwrap()
+            .parse::<u64>()
+            .unwrap()
+            * 1024
+    }
+    let path = std::env::var("MCHPRS_MEMORY_PLOT").expect("read-only plot save path");
+    let data = PlotData::<PLOT_SECTIONS>::load_from_file(&path, false).unwrap();
+    let chunks = data
+        .chunk_data
+        .into_iter()
+        .enumerate()
+        .map(|(i, chunk)| Chunk::load(PLOT_WIDTH + i as i32 / PLOT_WIDTH, 2 * PLOT_WIDTH + i as i32 % PLOT_WIDTH, chunk))
+        .collect();
+    let mut world = PlotWorld::from_chunks(1, 2, chunks, data.pending_ticks.into_iter().collect());
+    world.piston_state = data.piston_state;
+    let mut connection = mchprs_network::test_support::connection(false).unwrap();
+    let mut player = Player::test_player(connection.player);
+    player.set_test_permissions(&["commands.redpilator.reset"]);
+    let mut plot = super::super::benchmark::with_client(world, player, Tps::Limited(0));
+    plot.owner = Some(plot.players[0].uuid);
+    // Drain actual output so the diagnostic never accumulates a synthetic network backlog.
+    let reader = thread::spawn(move || {
+        let _ = std::io::copy(&mut connection.peer, &mut std::io::sink());
+    });
+    let cycles = std::env::var("MCHPRS_MEMORY_CYCLES").map_or(10, |value| value.parse::<usize>().unwrap());
+    let mut settled = Vec::new();
+    for cycle in 0..cycles {
+        // Change one isolated component to force a different native program on every cold build.
+        let pos = BlockPos::new(PLOT_BLOCK_WIDTH + 4 + cycle as i32 * 2, 240, 2 * PLOT_BLOCK_WIDTH + 4);
+        assert_eq!(plot.world.get_block(pos), Block::Air);
+        plot.world.set_block(pos, Block::from_name("lever").unwrap());
+        let before = state_hash(&plot.world);
+        let expected = {
+            let mut interpreted = plot.world.activation_snapshot();
+            interpreted.tick_interpreted();
+            assert!(matches!(interpreted.piston_state.phase, mchprs_world::AdvancePhase::BetweenTicks));
+            // BetweenTicks resets this marker before its next use; compiled export canonicalizes it.
+            interpreted.piston_state.scheduled_advanced = false;
+            state_hash(&interpreted)
+        };
+        eprintln!("MEMORY cycle={cycle} stage=before rss={}", rss());
+        plot.start_redpilator_with_budget(
+            CompilerOptions {
+                llvm: true,
+                relaxed_mode: true,
+                publication: Some(PublicationMode::Io),
+                ..Default::default()
+            },
+            None,
+        );
+        let started = Instant::now();
+        let mut report = Instant::now();
+        while plot.compilation.is_some() {
+            assert!(started.elapsed() < Duration::from_secs(900));
+            if report.elapsed() >= Duration::from_secs(1) {
+                eprintln!(
+                    "MEMORY cycle={cycle} rss={} phase={}",
+                    rss(),
+                    plot.compilation.as_ref().unwrap().monitor.status()
+                );
+                report = Instant::now();
+            }
+            plot.poll_redpilator_compilation();
+            thread::sleep(Duration::from_millis(10));
+        }
+        if std::env::var_os("MCHPRS_MEMORY_EXPECT_REFUSAL").is_some() {
+            assert!(!plot.redpilator.is_active(), "cycle {cycle} should refuse the low-memory compilation");
+            assert!(plot.redpilator_cache.is_none());
+            assert_eq!(state_hash(&plot.world), before, "refusal changed the world");
+            eprintln!("MEMORY_REFUSED cycle={cycle} settled_rss={}", rss());
+            continue;
+        }
+        assert!(plot.redpilator.is_active(), "cycle {cycle} compilation rejected");
+        let program = Arc::downgrade(&plot.redpilator.cached_program().unwrap());
+        plot.redpilator.tick().unwrap();
+        let compiled_rss = rss();
+        plot.handle_command(0, "/rp", vec!["off"]);
+        assert!(!plot.redpilator.is_active());
+        assert!(plot.redpilator_cache.is_none());
+        assert!(program.upgrade().is_none(), "cycle {cycle} retained program ownership");
+        assert_eq!(
+            state_hash(&plot.world),
+            expected,
+            "compiled tick/off differs from interpreted continuation"
+        );
+        let usage = rss();
+        eprintln!("MEMORY_RESULT cycle={cycle} compiled_rss={compiled_rss} settled_rss={usage}");
+        settled.push(usage);
+    }
+    if settled.len() >= 3 {
+        let baseline = settled[1];
+        let tolerance = (baseline / 20).max(128 * 1024 * 1024);
+        assert!(
+            settled[2..].iter().all(|&usage| usage <= baseline + tolerance),
+            "post-off RSS grew: {settled:?}"
+        );
+    }
+    drop(plot);
+    reader.join().unwrap();
+}

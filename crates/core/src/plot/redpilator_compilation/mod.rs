@@ -319,6 +319,12 @@ impl Plot {
         let completed = job.worker.join();
 
         if job.monitor.cancelled() {
+            if job.monitor.memory_exhausted() {
+                self.reject_redpilator(
+                    job.started,
+                    "Compilation stopped: insufficient server memory; free memory or compile a smaller circuit",
+                );
+            }
             self.reset_timings();
             return;
         }

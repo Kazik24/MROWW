@@ -61,10 +61,15 @@ impl Compiler {
         let started = Instant::now();
         monitor.set_phase("restoring exported executor");
         if monitor.cancelled() {
-            return Err(CompileError::Cancelled);
+            return Err(cancellation_error(&monitor));
         }
         options.io_only = options.publication_mode() == PublicationMode::Io;
-        if !cached.is_active() || options.update || options.llvm != cached.options.llvm || options.relaxed_mode != cached.options.relaxed_mode {
+        if !cached.is_active()
+            || options.update
+            || options.llvm != cached.options.llvm
+            || options.relaxed_mode != cached.options.relaxed_mode
+            || options.ignore_command_blocks != cached.options.ignore_command_blocks
+        {
             return Err(CompileError::Unsupported(ScratchError {
                 position: None,
                 reason: "incompatible executor checkpoint",
@@ -82,7 +87,7 @@ impl Compiler {
         statistics.cached = true;
         cached.options = options;
         if monitor.cancelled() {
-            return Err(CompileError::Cancelled);
+            return Err(cancellation_error(&monitor));
         }
         *self = cached;
         Ok(())
@@ -119,11 +124,18 @@ impl Compiler {
         if self.is_active() {
             return Err(CompileError::AlreadyActive);
         }
+        let _memory = crate::redpilator::memory::compile(&monitor).map_err(CompileError::Unsupported)?;
+        if options.ignore_command_blocks && !options.llvm {
+            return Err(CompileError::Unsupported(ScratchError {
+                position: None,
+                reason: "--ignore-command-blocks requires --llvm",
+            }));
+        }
         options.io_only = options.publication_mode() == PublicationMode::Io;
         let start = Instant::now();
         monitor.set_phase("entry validation");
         if monitor.cancelled() {
-            return Err(CompileError::Cancelled);
+            return Err(cancellation_error(&monitor));
         }
         if options.llvm {
             validate_llvm_entry(world.piston_state()).map_err(CompileError::Unsupported)?;
@@ -138,7 +150,11 @@ impl Compiler {
             scheduled: ticks.clone(),
             piston: world.piston_state().clone(),
         };
-        let cached = cached.filter(|program| program.relaxed_mode == options.relaxed_mode && program.movement_folding == options.movement_folding());
+        let cached = cached.filter(|program| {
+            program.relaxed_mode == options.relaxed_mode
+                && program.movement_folding == options.movement_folding()
+                && program.ignore_command_blocks == options.ignore_command_blocks
+        });
         let cache_hit = cached.is_some();
         let program = if let Some(program) = cached {
             program
@@ -146,7 +162,7 @@ impl Compiler {
             compile_program(world, bounds, entry, &options, &monitor, source_cache.as_deref())?
         };
         if monitor.cancelled() {
-            return Err(CompileError::Cancelled);
+            return Err(cancellation_error(&monitor));
         }
         let components = program.component_count();
         let pending_ticks = ticks.len();
@@ -159,7 +175,7 @@ impl Compiler {
         monitor.set_phase("initializing runtime");
         let runtime = sampled::start_shared_runtime(program, ticks, world.piston_state().clone()).map_err(CompileError::Unsupported)?;
         if monitor.cancelled() {
-            return Err(CompileError::Cancelled);
+            return Err(cancellation_error(&monitor));
         }
         self.prepare_publication_buffers(runtime.motion_part_capacity());
         self.runtime = Some(runtime);
@@ -186,7 +202,7 @@ fn compile_program(
     monitor: &TaskMonitor,
     source_cache: Option<&sampled::SourceOrderCache>,
 ) -> Result<Arc<sampled::Program>, CompileError> {
-    let mut program = sampled::compile_program_with_source_cache(world, bounds, entry, Some(monitor), source_cache)
+    let mut program = sampled::compile_program_with_source_cache(world, bounds, entry, Some(monitor), source_cache, options.ignore_command_blocks)
         .map_err(|error| compile_failure(error, monitor))?;
     if options.relaxed_mode {
         program.enable_relaxed_wire_shapes().map_err(CompileError::Unsupported)?;
@@ -203,9 +219,17 @@ fn compile_program(
     Ok(Arc::new(program))
 }
 
-fn compile_failure(error: ScratchError, monitor: &TaskMonitor) -> CompileError {
-    if monitor.cancelled() {
+fn cancellation_error(monitor: &TaskMonitor) -> CompileError {
+    if monitor.memory_exhausted() {
+        CompileError::Unsupported(crate::redpilator::memory::allocation_error())
+    } else {
         CompileError::Cancelled
+    }
+}
+
+fn compile_failure(error: ScratchError, monitor: &TaskMonitor) -> CompileError {
+    if monitor.memory_exhausted() || monitor.cancelled() {
+        cancellation_error(monitor)
     } else {
         CompileError::Unsupported(error)
     }

@@ -424,6 +424,55 @@ fn prepared_program_and_executor_cache_keep_relaxed_modes_separate() {
 }
 
 #[test]
+#[cfg(any(windows, target_os = "linux"))]
+fn ignored_command_blocks_execute_nothing_and_do_not_share_enabled_caches() {
+    let mut previous = None;
+    for ignore_command_blocks in [false, true, false] {
+        let (mut world, button, bounds) = fixture();
+        let command = button.offset(BlockFace::South);
+        let Some(BlockEntity::CommandBlock(original)) = world.get_block_entity(command).cloned() else {
+            unreachable!()
+        };
+        let options = CompilerOptions {
+            llvm: true,
+            ignore_command_blocks,
+            ..Default::default()
+        };
+        let mut compiler = Compiler::default();
+        compiler
+            .compile_cached(&world, bounds, options.clone(), vec![], Default::default(), previous)
+            .unwrap();
+        assert!(!compiler.stats().unwrap().cached);
+        previous = compiler.cached_program();
+        compiler.try_on_use_block(button).unwrap();
+        for _ in 0..8 {
+            compiler.tick().unwrap();
+        }
+        let saved = compiler.try_suspend(&mut world, bounds).unwrap().unwrap();
+        assert_eq!(world.command_output().count(), usize::from(!ignore_command_blocks));
+        if ignore_command_blocks {
+            let Some(BlockEntity::CommandBlock(stored)) = world.get_block_entity(command) else {
+                unreachable!()
+            };
+            assert_eq!(stored, &original);
+        }
+        let mut resumed = Compiler::default();
+        assert!(matches!(
+            resumed.resume_cached(
+                &world,
+                CompilerOptions {
+                    ignore_command_blocks: !ignore_command_blocks,
+                    ..options
+                },
+                Default::default(),
+                saved,
+            ),
+            Err(CompileError::Unsupported(_))
+        ));
+    }
+}
+
+#[test]
 fn relaxed_rust_cache_rebuilds_unfolded_programs() {
     let (world, _, bounds) = fixture();
     let options = CompilerOptions::parse("--relaxed").unwrap();

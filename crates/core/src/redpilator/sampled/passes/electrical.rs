@@ -176,6 +176,7 @@ pub(in super::super) fn run<'a>(
     let output_programs = vec![[vec![], vec![]]; positions.len()];
     let mut program =
         Program::new(positions, initial, sources, output_programs, links, watched_wires, repeaters).map_err(|err| error(bounds.0, err.reason))?;
+    program.ignore_command_blocks = context.ignore_command_blocks;
     program.pistons = pistons;
     program.tokens = tokens;
 
@@ -211,7 +212,7 @@ pub(in super::super) fn run<'a>(
             if !crate::redstone::comparator::has_override(block) {
                 return Ok(None);
             }
-            if block.is_command_block() {
+            if block.is_command_block() && !context.ignore_command_blocks {
                 let source = position_index
                     .get(&at)
                     .copied()

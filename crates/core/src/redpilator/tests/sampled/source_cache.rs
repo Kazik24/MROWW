@@ -69,6 +69,7 @@ fn compile(world: &PlotWorld, previous: Option<&super::super::SourceOrderCache>)
         },
         None,
         previous,
+        false,
     )
     .unwrap()
 }
@@ -291,6 +292,7 @@ fn independent_circuits_in_the_same_chunk_are_conservatively_invalidated_togethe
             },
             None,
             previous,
+            false,
         )
         .unwrap()
     };

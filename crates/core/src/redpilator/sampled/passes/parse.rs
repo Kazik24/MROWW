@@ -76,7 +76,11 @@ pub(in super::super) fn run(context: &Context<'_, impl World>, phases: &mut Comp
                         sources.push(positions.len());
                         positions.push(pos);
                     }
-                    block if block.is_command_block() => positions.push(pos),
+                    block if block.is_command_block() => {
+                        if !context.ignore_command_blocks {
+                            positions.push(pos);
+                        }
+                    }
                     Block::RedstoneWire { .. }
                     | Block::RedstoneLamp { .. }
                     | Block::Hopper { .. }

@@ -70,16 +70,17 @@ impl Library {
     }
 
     pub(super) fn load_program(
-        program: &super::generated::GeneratedProgram,
+        program: super::generated::GeneratedProgram,
         monitor: Option<&crate::redpilator::TaskMonitor>,
     ) -> Result<Self, ScratchError> {
         Self::load_inner(Some(program), monitor)
     }
 
     fn load_inner(
-        program: Option<&super::generated::GeneratedProgram>,
+        program: Option<super::generated::GeneratedProgram>,
         monitor: Option<&crate::redpilator::TaskMonitor>,
     ) -> Result<Self, ScratchError> {
+        let identity = program.as_ref().map(|program| program.identity);
         let path = cache::module_path(program, monitor).map_err(|error| {
             tracing::warn!(%error, "LLVM module preparation failed");
             ScratchError {
@@ -87,19 +88,19 @@ impl Library {
                 reason: "could not prepare LLVM module; see server log for details",
             }
         })?;
-        Self::load_path(&path, program)
+        Self::load_path(&path, identity.as_ref())
     }
 
     #[cfg(feature = "plot-bench")]
     pub(super) fn benchmark_load(path: &Path, program: &super::generated::GeneratedProgram) -> Result<Self, ScratchError> {
-        Self::load_path(path, Some(program))
+        Self::load_path(path, Some(&program.identity))
     }
 
-    fn load_path(path: &Path, program: Option<&super::generated::GeneratedProgram>) -> Result<Self, ScratchError> {
+    fn load_path(path: &Path, identity: Option<&[u8; 32]>) -> Result<Self, ScratchError> {
         let load_started = std::time::Instant::now();
-        let module = Module::open(&path)?;
+        let module = Module::open(path)?;
         if std::env::var_os("MCHPRS_LLVM_DIAGNOSTICS").is_some() {
-            let module_bytes = std::fs::metadata(&*path).map_or(0, |file| file.len());
+            let module_bytes = std::fs::metadata(path).map_or(0, |file| file.len());
             eprintln!("LLVM module: path={}, bytes={module_bytes}", path.display());
         }
         // Module ownership also releases the handle if any required export is missing.
@@ -136,8 +137,8 @@ impl Library {
             }
         };
         library.validate_abi()?;
-        if let Some(program) = program {
-            library.validate_program_identity(&program.identity)?;
+        if let Some(identity) = identity {
+            library.validate_program_identity(identity)?;
         }
         if std::env::var_os("MCHPRS_LLVM_DIAGNOSTICS").is_some() {
             eprintln!("LLVM module load_ms={:.3}", load_started.elapsed().as_secs_f64() * 1000.0);
