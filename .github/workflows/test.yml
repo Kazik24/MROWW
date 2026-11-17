@@ -41,7 +41,8 @@ jobs:
       - name: RedGear session regression tests
         run: cargo test --locked -p mroww-redgear-api --test session
       - name: Server admission regression tests
-        run: cargo test --locked -p mchprs_core --lib -- server::
+        run: |
+          cargo test --locked -p mchprs_core --lib -- server::
       - name: Plot and interpreter regression tests
         run: |
           cargo test --locked -p mchprs_core --lib -- plot::client_sync_tests::
