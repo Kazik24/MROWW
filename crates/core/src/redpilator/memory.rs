@@ -33,41 +33,67 @@ pub(super) fn zeroed<T: Default + Clone>(length: usize) -> Result<Vec<T>, Scratc
 
 // Large compilation phases and their native subprocesses share the server's memory limit.
 static COMPILATION: std::sync::Mutex<()> = std::sync::Mutex::new(());
+thread_local! { static COMPILING: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
 
 pub(super) struct Compilation {
-    _owner: std::sync::MutexGuard<'static, ()>,
+    _owner: Option<std::sync::MutexGuard<'static, ()>>,
     stop: Option<std::sync::mpsc::Sender<()>>,
     watcher: Option<std::thread::JoinHandle<()>>,
 }
 
-pub(super) fn compile(monitor: &std::sync::Arc<super::TaskMonitor>) -> Result<Compilation, ScratchError> {
+// Cleanup resets thread-local ownership, including on the small-circuit path.
+const _: () = assert!(!impls::impls!(Compilation: Send));
+
+pub(super) fn compile(
+    monitor: &std::sync::Arc<super::TaskMonitor>,
+    world: &impl crate::world::World,
+    bounds: (mchprs_blocks::BlockPos, mchprs_blocks::BlockPos),
+) -> Result<Compilation, ScratchError> {
+    if COMPILING.with(std::cell::Cell::get) {
+        return Err(ScratchError {
+            position: None,
+            reason: "reentrant Redpilator compilation is not supported",
+        });
+    }
+    COMPILING.with(|active| active.set(true));
+    let mut compilation = Compilation {
+        _owner: None,
+        stop: None,
+        watcher: None,
+    };
     use std::sync::TryLockError;
+    // Create long-lived pool metadata before large temporary compiler allocations fragment the heap.
+    let _ = rayon::current_num_threads();
     let mut waiting = false;
-    let owner = loop {
-        if monitor.cancelled() {
-            return Err(if monitor.memory_exhausted() {
-                allocation_error()
-            } else {
-                ScratchError {
-                    position: None,
-                    reason: "compilation cancelled",
-                }
-            });
-        }
-        match COMPILATION.try_lock() {
-            Ok(owner) => break owner,
-            Err(TryLockError::Poisoned(error)) => break error.into_inner(),
-            Err(TryLockError::WouldBlock) => {
-                if !waiting {
-                    monitor.set_phase("waiting for compilation memory");
-                    waiting = true;
-                }
-                std::thread::sleep(std::time::Duration::from_millis(10));
+    compilation._owner = if large_scene(world, bounds) {
+        Some(loop {
+            if monitor.cancelled() {
+                return Err(if monitor.memory_exhausted() {
+                    allocation_error()
+                } else {
+                    ScratchError {
+                        position: None,
+                        reason: "compilation cancelled",
+                    }
+                });
             }
-        }
+            match COMPILATION.try_lock() {
+                Ok(owner) => break owner,
+                Err(TryLockError::Poisoned(error)) => break error.into_inner(),
+                Err(TryLockError::WouldBlock) => {
+                    if !waiting {
+                        monitor.set_phase("waiting for compilation memory");
+                        waiting = true;
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(10));
+                }
+            }
+        })
+    } else {
+        None
     };
     #[cfg(target_os = "linux")]
-    let (stop, watcher) = {
+    {
         if under_pressure(0) {
             return Err(allocation_error());
         }
@@ -88,15 +114,44 @@ pub(super) fn compile(monitor: &std::sync::Arc<super::TaskMonitor>) -> Result<Co
                 position: None,
                 reason: "could not start compilation memory monitor",
             })?;
-        (Some(stop), Some(watcher))
-    };
-    #[cfg(not(target_os = "linux"))]
-    let (stop, watcher) = (None, None);
-    Ok(Compilation {
-        _owner: owner,
-        stop,
-        watcher,
-    })
+        compilation.stop = Some(stop);
+        compilation.watcher = Some(watcher);
+    }
+    Ok(compilation)
+}
+
+fn large_scene(world: &impl crate::world::World, (min, max): (mchprs_blocks::BlockPos, mchprs_blocks::BlockPos)) -> bool {
+    // A section's worth of blocks can use the concurrent small-circuit path.
+    const SMALL: u64 = 4096;
+    let dimensions = [(min.x, max.x), (min.y, max.y), (min.z, max.z)];
+    let mut volume = 1u64;
+    for (first, last) in dimensions {
+        let length = i64::from(last) - i64::from(first) + 1;
+        if length <= 0 {
+            return true;
+        }
+        volume = volume.saturating_mul(length as u64);
+    }
+    if volume <= SMALL {
+        return false;
+    }
+    let columns = (i64::from(max.x >> 4) - i64::from(min.x >> 4) + 1) * (i64::from(max.z >> 4) - i64::from(min.z >> 4) + 1);
+    if columns > i64::from(crate::plot::PLOT_WIDTH).pow(2) {
+        return true;
+    }
+    let mut blocks = 0u64;
+    for x in min.x >> 4..=max.x >> 4 {
+        for z in min.z >> 4..=max.z >> 4 {
+            let Some(chunk) = world.get_chunk(x, z) else {
+                return true;
+            };
+            blocks += chunk.sections.iter().map(|section| u64::from(section.block_count())).sum::<u64>();
+            if blocks > SMALL {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 impl Drop for Compilation {
@@ -107,6 +162,7 @@ impl Drop for Compilation {
         if let Some(watcher) = self.watcher.take() {
             let _ = watcher.join();
         }
+        COMPILING.with(|active| active.set(false));
     }
 }
 
@@ -136,15 +192,13 @@ fn cgroup_available(directory: &std::path::Path, v2: bool) -> Option<u64> {
 #[cfg(target_os = "linux")]
 fn under_pressure(additional: u64) -> bool {
     let headroom = (256u64 * 1024 * 1024).saturating_add(additional);
-    if let Ok(info) = std::fs::read_to_string("/proc/meminfo") {
-        if let Some(available) = info
+    if let Ok(info) = std::fs::read_to_string("/proc/meminfo")
+        && let Some(available) = info
             .lines()
             .find_map(|line| line.strip_prefix("MemAvailable:")?.split_whitespace().next()?.parse::<u64>().ok())
-        {
-            if available.saturating_mul(1024) < headroom {
-                return true;
-            }
-        }
+        && available.saturating_mul(1024) < headroom
+    {
+        return true;
     }
     if let Ok(groups) = std::fs::read_to_string("/proc/self/cgroup") {
         for line in groups.lines() {
@@ -190,11 +244,37 @@ mod tests {
         assert_eq!(values, [1, 2]);
     }
     #[test]
+    fn small_scenes_remain_concurrent_and_reentry_is_refused() {
+        use crate::world::World;
+        use mchprs_blocks::{BlockPos, blocks::Block};
+        let mut world = crate::plot::PlotWorld::from_chunks(0, 0, vec![crate::world::storage::Chunk::empty(0, 0)], Default::default());
+        let bounds = (BlockPos::new(0, 0, 0), BlockPos::new(15, 31, 15));
+        assert!(!large_scene(&world, bounds));
+        for i in 0..4097 {
+            world.set_block(BlockPos::new(i & 15, i >> 8, (i >> 4) & 15), Block::Stone {});
+        }
+        assert!(large_scene(&world, bounds));
+        let small = (BlockPos::new(0, 0, 0), BlockPos::new(1, 1, 1));
+        let monitor = std::sync::Arc::new(super::super::TaskMonitor::default());
+        let owner = compile(&monitor, &world, small).unwrap();
+        assert!(owner._owner.is_none());
+        assert_eq!(
+            compile(&monitor, &world, small).err().unwrap().reason,
+            "reentrant Redpilator compilation is not supported"
+        );
+        drop(owner);
+        assert!(compile(&monitor, &world, small).is_ok());
+    }
+
+    #[test]
     fn compilation_memory_slot_is_exclusive_and_waiting_is_cancellable() {
         let owner = COMPILATION.lock().unwrap_or_else(|error| error.into_inner());
         let monitor = std::sync::Arc::new(super::super::TaskMonitor::default());
         let waiting = monitor.clone();
-        let worker = std::thread::spawn(move || compile(&waiting).map(|_owner| ()));
+        let worker = std::thread::spawn(move || {
+            let world = crate::plot::PlotWorld::from_chunks(0, 0, Vec::new(), Default::default());
+            compile(&waiting, &world, world.get_corners()).map(|_owner| ())
+        });
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
         while !monitor.status().contains("waiting for compilation memory") {
             assert!(std::time::Instant::now() < deadline);
@@ -204,7 +284,8 @@ mod tests {
         monitor.cancel();
         assert_eq!(worker.join().unwrap().unwrap_err().reason, "compilation cancelled");
         drop(owner);
-        assert!(compile(&std::sync::Arc::new(super::super::TaskMonitor::default())).is_ok());
+        let world = crate::plot::PlotWorld::from_chunks(0, 0, Vec::new(), Default::default());
+        assert!(compile(&std::sync::Arc::new(super::super::TaskMonitor::default()), &world, world.get_corners()).is_ok());
     }
 
     #[test]

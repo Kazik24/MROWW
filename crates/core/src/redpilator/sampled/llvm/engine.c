@@ -783,10 +783,16 @@ static uint32_t execute_output(NEEngine *engine, uint32_t component, uint8_t pow
     const MchprsNativeComponent *record = &components(engine)[component];
     uint32_t start = powered ? record->on_offset : record->off_offset;
     uint32_t count = powered ? record->on_count : record->off_count;
+#if defined(NE_STATIC_OUTPUT_SPLITS)
+    uint32_t split = count && ne_has_reactive(engine) ? ne_static_output_splits[start] : UINT32_MAX;
+#else
+    const uint32_t split = UINT32_MAX;
+#endif
+    uint32_t contribution_count = split == UINT32_MAX ? count : split;
     if (ne_has_reactive(engine))
-        for (uint32_t i = 0; i < count; ++i) {
+        for (uint32_t i = 0; i < contribution_count; ++i) {
             const uint8_t *op = operations(engine) + (size_t)(start + i) * 8u;
-            if (op[0] > 1u)
+            if (split == UINT32_MAX && op[0] > 1u)
                 continue;
             uint32_t operand = read_u32(op + 4), target;
             uint8_t before;
@@ -804,11 +810,11 @@ static uint32_t execute_output(NEEngine *engine, uint32_t component, uint8_t pow
             if (before != after)
                 engine->updated[target] = 0u;
         }
-    for (uint32_t i = 0; i < count; ++i) {
+    for (uint32_t i = split == UINT32_MAX ? 0u : split; i < count; ++i) {
         const uint8_t *op = operations(engine) + (size_t)(start + i) * 8u;
         uint32_t operand = read_u32(op + 4);
         if (ne_has_reactive(engine) &&
-            (op[0] < 2u || ((op[0] == 4u || op[0] == 5u || (op[0] >= 6u && op[0] <= 10u) || op[0] == 13u) &&
+            ((split == UINT32_MAX && op[0] < 2u) || ((op[0] == 4u || op[0] == 5u || (op[0] >= 6u && op[0] <= 10u) || op[0] == 13u) &&
                             table(engine, 43u)[operand * 5u])))
             continue;
         uint32_t status = execute_operation(engine, op);

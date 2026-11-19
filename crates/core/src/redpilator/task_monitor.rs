@@ -86,7 +86,6 @@ impl TaskMonitor {
     #[cfg(target_os = "linux")]
     pub(super) fn cancel_for_memory(&self) {
         self.memory_exhausted.store(true, Ordering::Relaxed);
-        tracing::warn!("Redpilator compilation cancelled to preserve server memory headroom");
         self.cancel();
     }
 

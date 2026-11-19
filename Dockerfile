@@ -68,7 +68,7 @@ RUN apt-get update \
 COPY --from=builder /out/mroww /usr/local/bin/mroww
 COPY Config.docker.toml /etc/mchprs/Config.toml
 # Return large compilation buffers to Linux instead of retaining them in worker arenas.
-ENV MALLOC_ARENA_MAX=2 MALLOC_MMAP_THRESHOLD_=131072 MALLOC_TRIM_THRESHOLD_=131072
+ENV MALLOC_ARENA_MAX=1 MALLOC_MMAP_THRESHOLD_=16384 MALLOC_TRIM_THRESHOLD_=16384
 ENV MCHPRS_CONFIG=/etc/mchprs/Config.toml
 ENV MCHPRS_LLVM_WORK_DIR=/data/work/llvm \
     MCHPRS_LLVM_CLANG=/usr/bin/clang \

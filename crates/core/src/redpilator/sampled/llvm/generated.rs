@@ -1,8 +1,10 @@
 //! Immutable circuit data compiled in the same translation unit as the native runtime.
-use super::{AUX_TABLES, LlvmProgram, NativeProgramDescriptor, Program, ScratchError, command, command_notifications};
+use super::{AUX_TABLES, COMPONENT_BYTES, LlvmProgram, NativeProgramDescriptor, OP_BYTES, Program, ScratchError, command, command_notifications};
 use crate::redpilator::TaskMonitor;
 use sha2::{Digest, Sha256};
-use std::{fmt::Write as _, fs, path::Path};
+use std::{fmt::Write as _, fs, io, path::Path};
+
+const TABLE_CHUNK_WORDS: usize = 16 * 1024;
 
 pub(super) struct GeneratedProgram {
     pub(super) encoded: LlvmProgram,
@@ -83,15 +85,41 @@ mod tests {
     fn movement_graph_ranges_keep_original_costs_and_fixed_metadata() {
         let plans = bytes(&[0, 1, 0, 0, 0, 0, 0, 6, u32::MAX, 0]);
         let cases = bytes(&[0, 3, 3, 3]);
-        let steps = [7, 1, 0, 1, 3, 1, 0, 3, 3, 3];
-        let ([direct_cases, direct_plans, direct_steps], bits) = direct_movement_ranges(&plans, &cases, &steps, &[0, 1, 1, 2, 2, 2, 3]).unwrap();
+        let original = [7, 1, 0, 1, 3, 1, 0, 3, 3, 3];
+        let mut steps = original;
+        assert!(direct_movement_ranges(&[], &bytes(&[0, 65536]), &mut steps, &[]).is_none());
+        assert_eq!(steps, original);
+        let ([direct_cases, direct_plans], bits) = direct_movement_ranges(&plans, &cases, &mut steps, &[0, 1, 1, 2, 2, 2, 3]).unwrap();
         assert_eq!(bits, 3);
         assert_eq!(direct_cases, [0, 19, 2, 11]);
         assert_eq!(&direct_plans[..10], &[0, 1, 0, 0, 0, 0, 0, 6, u32::MAX, 0]);
         assert_eq!(&direct_plans[10..], &[0, 3, 0, 0]);
-        assert_eq!(&direct_steps[..6], &steps[..6]);
-        assert_eq!(&direct_steps[6..], &[0, 19, 2, 11]);
-        assert!(direct_movement_ranges(&[], &bytes(&[0, 65536]), &[], &[]).is_none());
+        assert_eq!(&steps[..6], &original[..6]);
+        assert_eq!(&steps[6..], &[0, 19, 2, 11]);
+    }
+
+    #[test]
+    fn derived_tables_stream_the_same_little_endian_bytes() {
+        let words: Vec<_> = (0..2 * TABLE_CHUNK_WORDS as u32 + 7).map(|i| i.wrapping_mul(0xdead_beef)).collect();
+        for words in [&words[..0], &words[..3], &words[..]] {
+            let mut output = Vec::new();
+            write_words(&mut output, words).unwrap();
+            assert_eq!(output, bytes(words));
+        }
+    }
+
+    #[test]
+    fn reactive_output_splits_handle_shared_ranges_and_conflicting_lengths() {
+        let operations = bytes(&[0, 0, 1, 7, 4, 2, 0, 0, 2, 1, 1, 7, 0, 1, 4, 2, 5, 3]);
+        let mut components = bytes(&[
+            0, 0, 0, 0, 0, 3, 3, 3, // Contribution prefix and interleaved range.
+            0, 0, 0, 0, 6, 1, 7, 2, // Contribution-only and callback-only.
+            0, 0, 0, 0, 0, 3, 9, 0, // Shared range and a one-past-end empty range.
+        ]);
+        let splits = reactive_output_splits(&operations, &components);
+        assert_eq!([splits[0], splits[3], splits[6], splits[7]], [2, u32::MAX, 1, 0]);
+        components.extend(bytes(&[0, 0, 0, 0, 0, 2, 9, 0]));
+        assert_eq!(reactive_output_splits(&operations, &components)[0], u32::MAX);
     }
 
     #[test]
@@ -239,6 +267,43 @@ fn bytes(words: &[u32]) -> Vec<u8> {
     words.iter().flat_map(|word| word.to_le_bytes()).collect()
 }
 
+fn write_words(mut output: impl io::Write, words: &[u32]) -> io::Result<()> {
+    let mut buffer = [[0; 4]; TABLE_CHUNK_WORDS];
+    for chunk in words.chunks(TABLE_CHUNK_WORDS) {
+        let bytes = &mut buffer[..chunk.len()];
+        for (slot, word) in bytes.iter_mut().zip(chunk) {
+            *slot = word.to_le_bytes();
+        }
+        output.write_all(bytes.as_flattened())?;
+    }
+    output.flush()
+}
+
+fn reactive_output_splits(operations: &[u8], components: &[u8]) -> Vec<u32> {
+    let mut splits = vec![0; operations.len() / OP_BYTES];
+    for component in components.chunks_exact(COMPONENT_BYTES) {
+        for edge in component[16..].chunks_exact(8) {
+            let start = u32::from_le_bytes(edge[..4].try_into().unwrap()) as usize;
+            let count = u32::from_le_bytes(edge[4..].try_into().unwrap());
+            if count != 0 {
+                // Two lengths at the same start must use canonical replay.
+                let entry = &mut splits[start];
+                *entry = if *entry == 0 || *entry == count { count } else { u32::MAX };
+            }
+        }
+    }
+    for (start, count) in splits.iter_mut().enumerate() {
+        if *count == 0 || *count == u32::MAX {
+            continue;
+        }
+        let end = start + *count as usize;
+        let mut opcodes = operations[start * OP_BYTES..end * OP_BYTES].iter().step_by(OP_BYTES);
+        let prefix = opcodes.by_ref().take_while(|&&opcode| opcode < 2).count();
+        *count = if opcodes.any(|&opcode| opcode < 2) { u32::MAX } else { prefix as u32 };
+    }
+    splits
+}
+
 fn inline_movement_cases(steps: &[u8], cases: &[u8]) -> Vec<u32> {
     let mut words = Vec::with_capacity(steps.len() / 24 * 10);
     for step in steps.chunks_exact(24) {
@@ -256,8 +321,8 @@ fn inline_movement_cases(steps: &[u8], cases: &[u8]) -> Vec<u32> {
     words
 }
 
-// Filtered case ranges, extended flat plans and inline steps; retain canonical costs for failure handling.
-fn direct_movement_ranges(plans: &[u8], cases: &[u8], steps: &[u32], prefix: &[u32]) -> Option<([Vec<u32>; 3], u32)> {
+// Filtered case ranges, extended flat plans and packed inline steps retain canonical costs for failure handling.
+fn direct_movement_ranges(plans: &[u8], cases: &[u8], steps: &mut [u32], prefix: &[u32]) -> Option<([Vec<u32>; 2], u32)> {
     let read = |data: &[u8], at: usize| u32::from_le_bytes(data[at * 4..at * 4 + 4].try_into().unwrap());
     let maximum = cases
         .chunks_exact(8)
@@ -289,14 +354,13 @@ fn direct_movement_ranges(plans: &[u8], cases: &[u8], steps: &[u32], prefix: &[u
             });
         }
     }
-    let mut direct_steps = steps.to_vec();
-    for row in direct_steps.chunks_exact_mut(10) {
+    for row in steps.chunks_exact_mut(10) {
         for at in [6, 8] {
             let packed = range(row[at], row[at + 1]);
             row[at..at + 2].copy_from_slice(&packed);
         }
     }
-    Some(([direct_cases, direct_plans, direct_steps], bits))
+    Some(([direct_cases, direct_plans], bits))
 }
 
 fn movement_dependency_masks(plans: &[u8], steps: &[u8], dependencies: &[u8]) -> Vec<u32> {
@@ -676,11 +740,10 @@ impl GeneratedProgram {
         let mut direct_cases = Vec::new();
         let mut direct_programs = Vec::new();
         if !graph[1].is_empty()
-            && let Some(([cases, plans, steps], bits)) = direct_movement_ranges(section(19), section(21), &movement_steps, &graph[3])
+            && let Some(([cases, plans], bits)) = direct_movement_ranges(section(19), section(21), &mut movement_steps, &graph[3])
         {
             direct_cases = cases;
             direct_programs = plans;
-            movement_steps = steps;
             graph[3].clear();
             writeln!(
                 header,
@@ -688,6 +751,17 @@ impl GeneratedProgram {
                 (1u32 << bits) - 1
             )
             .unwrap();
+        }
+        let output_splits = if self.has_reactive {
+            reactive_output_splits(
+                &blob[p.operation_offset as usize..p.link_offset as usize],
+                &blob[p.component_offset as usize..p.source_offset as usize],
+            )
+        } else {
+            Vec::new()
+        };
+        if !output_splits.is_empty() {
+            header.push_str("#define NE_STATIC_OUTPUT_SPLITS 1\n");
         }
         for (name, words) in [
             ("graph_rows", &graph[0]),
@@ -704,11 +778,16 @@ impl GeneratedProgram {
             ("command_specs", &self.commands.specs),
             ("command_notify_rows", &self.notifications.rows),
             ("command_notify_targets", &self.notifications.targets),
-        ] {
+        ]
+        .into_iter()
+        .chain((!output_splits.is_empty()).then_some(("output_splits", &output_splits)))
+        {
             if words.is_empty() {
                 writeln!(header, "#define ne_static_{name} ne_empty_words").unwrap();
             } else {
-                fs::write(directory.join(format!("{name}.bin")), bytes(words)).map_err(|e| e.to_string())?;
+                fs::File::create(directory.join(format!("{name}.bin")))
+                    .and_then(|file| write_words(file, words))
+                    .map_err(|e| e.to_string())?;
                 writeln!(header, "static const union {{ uint8_t bytes[{}]; uint32_t words[{}]; }} ne_data_{name} = {{.bytes = {{\n#embed \"{name}.bin\"\n}}}};\n#define ne_static_{name} ne_data_{name}.words", words.len()*4, words.len()).unwrap();
             }
         }

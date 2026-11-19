@@ -124,7 +124,7 @@ impl Compiler {
         if self.is_active() {
             return Err(CompileError::AlreadyActive);
         }
-        let _memory = crate::redpilator::memory::compile(&monitor).map_err(CompileError::Unsupported)?;
+        let _memory = crate::redpilator::memory::compile(&monitor, world, bounds).map_err(|error| compile_failure(error, &monitor))?;
         if options.ignore_command_blocks && !options.llvm {
             return Err(CompileError::Unsupported(ScratchError {
                 position: None,
